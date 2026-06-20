@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>WorkShift Invoice Generator - Standalone PDF Invoice Tool</title>
+  <title>Invoicer - Standalone PDF Invoice Tool</title>
   <meta name="description" content="Generate simple, modern, clean wage payment invoice PDFs from your shift history in seconds. Standalone HTML file running entirely in the browser.">
   <link rel="manifest" href="manifest.json">
   
@@ -27,11 +27,11 @@
       --font-heading: 'Outfit', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
       --font-body: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
 
-      /* HSL Color Palette (Light Theme Default) */
-      --hue: 220;
-      --primary: hsl(var(--hue), 85%, 57%);
-      --primary-hover: hsl(var(--hue), 85%, 48%);
-      --primary-rgb: 37, 99, 235;
+      /* HSL Color Palette (Light Theme - Warm Pastel Orange) */
+      --hue: 24;
+      --primary: hsl(var(--hue), 90%, 60%);
+      --primary-hover: hsl(var(--hue), 90%, 50%);
+      --primary-rgb: 249, 115, 22;
       --background: hsl(var(--hue), 30%, 96%);
       --surface: hsl(var(--hue), 0%, 100%);
       --surface-secondary: hsl(var(--hue), 20%, 98%);
@@ -42,10 +42,10 @@
       --error: hsl(0, 75%, 60%);
       --success: hsl(142, 70%, 45%);
       --success-bg: hsl(142, 70%, 95%);
-      --accent: hsl(260, 80%, 65%);
+      --accent: hsl(var(--hue), 85%, 65%);
       
-      /* Decorative Gradients */
-      --gradient-brand: linear-gradient(135deg, var(--primary), var(--accent));
+      /* Solid Premium Brand Color */
+      --gradient-brand: var(--primary);
       
       /* Shadow Levels */
       --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.02);
@@ -61,16 +61,22 @@
     }
 
     [data-theme="dark"] {
-      --background: hsl(var(--hue), 24%, 10%);
-      --surface: hsl(var(--hue), 20%, 14%);
-      --surface-secondary: hsl(var(--hue), 18%, 18%);
-      --text-main: hsl(var(--hue), 20%, 94%);
-      --text-muted: hsl(var(--hue), 12%, 65%);
-      --border: hsl(var(--hue), 15%, 22%);
-      --border-focus: hsl(var(--hue), 70%, 50%);
+      /* HSL Color Palette (Dark Theme - Forest Green) */
+      --hue: 140;
+      --primary: hsl(var(--hue), 48%, 42%);
+      --primary-hover: hsl(var(--hue), 48%, 34%);
+      --primary-rgb: 34, 110, 64;
+      --background: hsl(var(--hue), 20%, 9%);
+      --surface: hsl(var(--hue), 16%, 13%);
+      --surface-secondary: hsl(var(--hue), 14%, 17%);
+      --text-main: hsl(var(--hue), 25%, 94%);
+      --text-muted: hsl(var(--hue), 12%, 66%);
+      --border: hsl(var(--hue), 14%, 21%);
+      --border-focus: hsl(var(--hue), 55%, 45%);
       --success-bg: hsl(142, 60%, 15%);
       --shadow-md: 0 10px 25px -5px rgba(0, 0, 0, 0.3), 0 8px 10px -6px rgba(0, 0, 0, 0.3);
       --shadow-lg: 0 20px 40px -15px rgba(0, 0, 0, 0.4);
+      --gradient-brand: var(--primary);
     }
 
     /* Reset and Base Styles */
@@ -147,24 +153,81 @@
       color: var(--text-muted);
     }
 
-    /* Theme Switcher Button */
-    .btn-icon {
-      background: var(--surface-secondary);
-      border: 1px solid var(--border);
-      color: var(--text-main);
-      width: 40px;
-      height: 40px;
-      border-radius: 50%;
-      cursor: pointer;
+    /* Theme Toggle Switch */
+    .theme-switch-wrapper {
       display: flex;
       align-items: center;
-      justify-content: center;
+      gap: 0.5rem;
+      background: var(--surface-secondary);
+      border: 1px solid var(--border);
+      padding: 0.35rem 0.65rem;
+      border-radius: 30px;
       transition: var(--transition);
     }
 
-    .btn-icon:hover {
-      background: var(--border);
-      transform: translateY(-2px);
+    .theme-icon-label {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+    }
+
+    [data-theme="light"] .theme-switch-wrapper .fa-sun {
+      color: var(--primary);
+    }
+    [data-theme="dark"] .theme-switch-wrapper .fa-moon {
+      color: var(--primary);
+    }
+
+    .theme-switch {
+      display: inline-block;
+      height: 22px;
+      position: relative;
+      width: 42px;
+      margin: 0;
+    }
+
+    .theme-switch input {
+      display: none !important;
+    }
+
+    .slider {
+      background-color: var(--border);
+      bottom: 0;
+      cursor: pointer;
+      left: 0;
+      position: absolute;
+      right: 0;
+      top: 0;
+      transition: .4s;
+    }
+
+    .slider:before {
+      background-color: var(--surface);
+      bottom: 3px;
+      content: "";
+      height: 16px;
+      left: 3px;
+      position: absolute;
+      transition: .4s;
+      width: 16px;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .slider.round {
+      border-radius: 34px;
+    }
+
+    .slider.round:before {
+      border-radius: 50%;
+    }
+
+    .theme-switch input:checked + .slider {
+      background-color: var(--primary);
+    }
+
+    .theme-switch input:checked + .slider:before {
+      transform: translateX(20px);
     }
 
     /* Cards & Layout Grid */
@@ -172,6 +235,19 @@
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
       gap: 1.5rem;
+    }
+
+    .grid-panels-2x2 {
+      grid-column: 1 / -1;
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1.5rem;
+    }
+
+    @media (max-width: 768px) {
+      .grid-panels-2x2 {
+        grid-template-columns: 1fr;
+      }
     }
 
     .card {
@@ -449,9 +525,7 @@
     }
 
     .summary-item .val.highlight {
-      background: var(--gradient-brand);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
+      color: var(--primary);
     }
 
     /* Notification & Toast */
@@ -493,6 +567,134 @@
       display: flex;
       flex-direction: column;
       gap: 1rem;
+    }
+
+    .pdf-style-btn-group {
+      display: flex;
+      gap: 0.5rem;
+      width: 100%;
+    }
+
+    .style-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.4rem;
+      padding: 0.75rem 0.5rem;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      background-color: var(--surface-secondary);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      transition: var(--transition);
+      flex: 1;
+    }
+
+    .style-btn:hover {
+      background-color: var(--border);
+      color: var(--text-main);
+    }
+
+    .style-btn.active {
+      background-color: var(--primary);
+      color: var(--surface);
+      border-color: var(--primary);
+      box-shadow: 0 4px 10px rgba(var(--primary-rgb), 0.2);
+    }
+
+    .color-picker-trigger {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 2.5rem;
+      height: 100%;
+      background-color: var(--surface-secondary);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: var(--transition);
+      flex-shrink: 0;
+    }
+
+    .color-picker-trigger:hover {
+      background-color: var(--border);
+      color: var(--text-main);
+    }
+
+    /* Popover styles for color picker */
+    .creative-color-popup {
+      position: absolute;
+      background-color: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      box-shadow: var(--shadow-lg);
+      padding: 0.75rem;
+      z-index: 10000;
+      width: 200px;
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+      animation: popFadeIn 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    @keyframes popFadeIn {
+      from { opacity: 0; transform: scale(0.95) translateY(5px); }
+      to { opacity: 1; transform: scale(1) translateY(0); }
+    }
+
+    .color-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 0.5rem;
+    }
+
+    .color-swatch {
+      aspect-ratio: 1;
+      border-radius: 50%;
+      cursor: pointer;
+      border: 2px solid transparent;
+      transition: var(--transition);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .color-swatch:hover {
+      transform: scale(1.15);
+    }
+
+    .color-swatch.selected {
+      border-color: var(--text-main);
+      transform: scale(1.1);
+    }
+
+    .custom-color-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-top: 1px solid var(--border);
+      padding-top: 0.5rem;
+    }
+
+    .custom-color-label {
+      font-size: 0.8rem;
+      color: var(--text-main);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 0.25rem;
+      text-transform: none;
+      letter-spacing: normal;
+    }
+
+    #custom-creative-color-input {
+      width: 2rem;
+      height: 1.5rem;
+      padding: 0;
+      border: none;
+      cursor: pointer;
+      background: none;
     }
 
     .footer-credits {
@@ -665,44 +867,153 @@
       width: 100%;
     }
 
-    .time-dropdown-list {
-      position: absolute;
-      width: 150px;
-      max-height: 180px;
-      overflow-y: auto;
+    /* Time Picker Modal Styles */
+    .modal-backdrop {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background-color: rgba(0, 0, 0, 0.4);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 10000;
+      backdrop-filter: blur(4px);
+      transition: var(--transition);
+    }
+    
+    .modal-backdrop.hidden {
+      display: none !important;
+    }
+    
+    .modal-content {
       background-color: var(--surface);
       border: 1px solid var(--border);
-      border-radius: var(--radius-sm);
+      border-radius: var(--radius-lg);
       box-shadow: var(--shadow-lg);
-      z-index: 9999;
+      padding: 1.75rem;
+      width: 300px;
       display: flex;
       flex-direction: column;
+      gap: 1.25rem;
+      animation: modalSlideUp 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.1) forwards;
     }
-
-    .time-dropdown-list.hidden {
+    
+    @keyframes modalSlideUp {
+      from { transform: translateY(30px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+    
+    .modal-content h3 {
+      font-size: 1.1rem;
+      text-align: center;
+      color: var(--text-main);
+      margin: 0;
+    }
+    
+    .picker-container {
+      position: relative;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 200px;
+      overflow: hidden;
+      background: var(--surface-secondary);
+      border-radius: var(--radius-md);
+      border: 1px solid var(--border);
+    }
+    
+    .picker-highlight {
+      position: absolute;
+      left: 0;
+      right: 0;
+      height: 40px;
+      border-top: 1px solid var(--primary);
+      border-bottom: 1px solid var(--primary);
+      background-color: rgba(var(--primary-rgb), 0.06);
+      pointer-events: none;
+      z-index: 2;
+    }
+    
+    .picker-wheel {
+      flex: 1;
+      height: 100%;
+      overflow-y: scroll;
+      scroll-snap-type: y mandatory;
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      z-index: 1;
+    }
+    
+    .picker-wheel::-webkit-scrollbar {
       display: none;
     }
-
-    .time-dropdown-item {
-      padding: 0.5rem 0.75rem;
-      font-size: 0.85rem;
-      cursor: pointer;
-      color: var(--text-main);
-      transition: var(--transition);
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    .time-dropdown-item:hover {
-      background-color: var(--surface-secondary);
-      color: var(--primary);
-    }
-
-    .time-dropdown-item .duration-hint {
-      color: var(--text-muted);
-      font-size: 0.75rem;
+    
+    .picker-item {
+      height: 40px;
+      line-height: 40px;
+      text-align: center;
+      font-size: 1.25rem;
       font-weight: 500;
+      color: var(--text-muted);
+      scroll-snap-align: center;
+      width: 100%;
+      cursor: pointer;
+      user-select: none;
+      transition: all 0.2s ease;
+    }
+    
+    .picker-item.selected {
+      color: var(--primary);
+      font-weight: 700;
+      font-size: 1.45rem;
+      transform: scale(1.15);
+    }
+    
+    .picker-wheel-spacer {
+      height: 80px;
+      flex-shrink: 0;
+    }
+    
+    .picker-separator {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      margin: 0 0.25rem;
+      user-select: none;
+    }
+    
+    .modal-actions {
+      display: flex;
+      gap: 0.75rem;
+    }
+    
+    .modal-actions button {
+      flex: 1;
+    }
+
+    @media (max-width: 768px) {
+      .modal-backdrop {
+        align-items: flex-end;
+      }
+      
+      .modal-content {
+        width: 100vw;
+        border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+        border: none;
+        border-top: 1px solid var(--border);
+        padding-bottom: calc(1.75rem + env(safe-area-inset-bottom, 0px));
+        animation: modalSlideUpMobile 0.3s cubic-bezier(0.175, 0.885, 0.32, 1) forwards;
+      }
+      
+      @keyframes modalSlideUpMobile {
+        from { transform: translateY(100%); }
+        to { transform: translateY(0); }
+      }
     }
   </style>
 </head>
@@ -717,18 +1028,24 @@
           <i class="fa-solid fa-file-invoice-dollar"></i>
         </div>
         <div class="logo-text">
-          <h1>Wage Invoice Generator</h1>
+          <h1>Invoicer</h1>
           <p>Create clean PDF invoices for your work shifts</p>
         </div>
       </div>
-      <button id="theme-toggle" class="btn-icon" title="Toggle Dark/Light Mode" aria-label="Toggle dark mode">
-        <i class="fa-solid fa-moon"></i>
-      </button>
+      <div class="theme-switch-wrapper" title="Toggle Dark/Light Mode">
+        <span class="theme-icon-label"><i class="fa-solid fa-sun"></i></span>
+        <label class="theme-switch" for="checkbox-theme">
+          <input type="checkbox" id="checkbox-theme" aria-label="Toggle dark mode">
+          <div class="slider round"></div>
+        </label>
+        <span class="theme-icon-label"><i class="fa-solid fa-moon"></i></span>
+      </div>
     </header>
 
     <div class="grid-panels">
       
-      <!-- Card: User Details -->
+      <div class="grid-panels-2x2">
+        <!-- Card: User Details -->
       <section class="card" id="user-details-card">
         <h2 class="card-title"><i class="fa-solid fa-user"></i>Your Information</h2>
         
@@ -826,7 +1143,14 @@
           <label for="week-ending-date">Week Ending Date</label>
           <input type="date" id="week-ending-date">
         </div>
+
+        <div class="form-group">
+          <label for="custom-footer-message">Custom Footer Message</label>
+          <textarea id="custom-footer-message" placeholder="e.g. Thank you for your business! / Please pay within 14 days." rows="2"></textarea>
+        </div>
       </section>
+
+      </div>
 
       <!-- Card: Shift Details (Full Width) -->
       <section class="card full-width-panel" id="shifts-card">
@@ -883,6 +1207,30 @@
         </div>
 
         <div class="actions-container">
+          <div class="form-group" style="margin-bottom: 0.5rem;">
+            <label><i class="fa-solid fa-palette"></i> PDF Design Style</label>
+            <div class="pdf-style-btn-group">
+              <div class="style-btn-wrapper" style="display: flex; gap: 0.25rem; flex: 1;">
+                <button type="button" class="style-btn active" data-value="default" style="flex: 1;">
+                  <i class="fa-solid fa-square-poll-horizontal"></i> Default
+                </button>
+                <button type="button" class="color-picker-trigger" id="default-color-btn" title="Choose Accent Color" style="display: none;">
+                  <i class="fa-solid fa-droplet"></i>
+                </button>
+              </div>
+              <div class="style-btn-wrapper" style="display: flex; gap: 0.25rem; flex: 1;">
+                <button type="button" class="style-btn" data-value="formal" style="flex: 1;">
+                  <i class="fa-solid fa-font"></i> Formal
+                </button>
+                <button type="button" class="color-picker-trigger" id="formal-color-btn" title="Choose Formal Tone" style="display: none;">
+                  <i class="fa-solid fa-droplet"></i>
+                </button>
+              </div>
+            </div>
+            <input type="hidden" id="pdf-style-select" value="default">
+            <input type="hidden" id="default-color" value="">
+            <input type="hidden" id="formal-color" value="">
+          </div>
           <button id="btn-download-pdf" class="btn btn-primary btn-large" type="button">
             <i class="fa-solid fa-file-pdf"></i> Generate & Download Invoice PDF (.pdf)
           </button>
@@ -899,15 +1247,44 @@
 
     <!-- Footer -->
     <footer>
-      <p class="footer-credits">&copy; 2026 Shift Invoice Generator. Runs entirely in your browser.</p>
+      <p class="footer-credits">&copy; 2026 Invoicer. Runs entirely in your browser.</p>
     </footer>
 
+  </div>
+
+  <!-- Custom Time Picker Modal -->
+  <div id="time-picker-modal" class="modal-backdrop hidden">
+    <div class="modal-content">
+      <h3 id="time-picker-title">Select Time</h3>
+      
+      <div class="picker-container">
+        <!-- Highlights the active center row -->
+        <div class="picker-highlight"></div>
+        
+        <!-- Hours Wheel -->
+        <div class="picker-wheel" id="wheel-hours">
+          <!-- Dynamically populated -->
+        </div>
+        
+        <div class="picker-separator">:</div>
+        
+        <!-- Minutes Wheel -->
+        <div class="picker-wheel" id="wheel-minutes">
+          <!-- Dynamically populated -->
+        </div>
+      </div>
+      
+      <div class="modal-actions">
+        <button id="btn-picker-cancel" class="btn btn-secondary" type="button">Cancel</button>
+        <button id="btn-picker-confirm" class="btn btn-primary" type="button">Confirm</button>
+      </div>
+    </div>
   </div>
 
   <!-- Inline App JavaScript -->
   <script>
     // DOM Elements
-    const themeToggle = document.getElementById('theme-toggle');
+    const themeCheckbox = document.getElementById('checkbox-theme');
     const btnAddShift = document.getElementById('btn-add-shift');
     const btnClearShifts = document.getElementById('btn-clear-shifts');
     const btnFillWeek = document.getElementById('btn-fill-week');
@@ -924,7 +1301,8 @@
       'your-name', 'your-email', 'your-phone', 'default-job', 'default-rate',
       'employer-company', 'employer-name', 'employer-address',
       'bank-name', 'bank-account-name', 'bank-account-num', 'bank-sort-code',
-      'invoice-num', 'invoice-date', 'week-ending-date'
+      'invoice-num', 'invoice-date', 'week-ending-date', 'pdf-style-select',
+      'custom-footer-message', 'default-color', 'formal-color'
     ];
 
     // App Init
@@ -933,6 +1311,8 @@
       initFormPersistence();
       initDates();
       loadSavedShifts();
+      initTimePickerModal();
+      initPdfStyleButtons();
     });
 
     // ==========================================
@@ -941,24 +1321,16 @@
     function initTheme() {
       const savedTheme = localStorage.getItem('sig_theme') || 'light';
       document.documentElement.setAttribute('data-theme', savedTheme);
-      updateThemeIcon(savedTheme);
-
-      themeToggle.addEventListener('click', () => {
-        const currentTheme = document.documentElement.getAttribute('data-theme');
-        const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-        document.documentElement.setAttribute('data-theme', newTheme);
-        localStorage.setItem('sig_theme', newTheme);
-        updateThemeIcon(newTheme);
-        showToast(`Switched to ${newTheme} mode`);
-      });
-    }
-
-    function updateThemeIcon(theme) {
-      const icon = themeToggle.querySelector('i');
-      if (theme === 'dark') {
-        icon.className = 'fa-solid fa-sun';
-      } else {
-        icon.className = 'fa-solid fa-moon';
+      
+      if (themeCheckbox) {
+        themeCheckbox.checked = (savedTheme === 'dark');
+        
+        themeCheckbox.addEventListener('change', () => {
+          const newTheme = themeCheckbox.checked ? 'dark' : 'light';
+          document.documentElement.setAttribute('data-theme', newTheme);
+          localStorage.setItem('sig_theme', newTheme);
+          showToast(`Switched to ${newTheme} mode`);
+        });
       }
     }
 
@@ -979,14 +1351,234 @@
       inputsToPersist.forEach(id => {
         const input = document.getElementById(id);
         if (input) {
-          input.addEventListener('input', () => {
+          const saveValue = () => {
             localStorage.setItem(`sig_${id}`, input.value);
             if (id === 'default-rate' || id === 'default-job') {
               recalculateAll();
             }
+          };
+          input.addEventListener('input', saveValue);
+          input.addEventListener('change', saveValue);
+        }
+      });
+    }
+    let activeColorBtn = null; // Track which color picker button triggered the popup
+
+    function initPdfStyleButtons() {
+      const styleSelect = document.getElementById('pdf-style-select');
+      const defaultColorInput = document.getElementById('default-color');
+      const formalColorInput = document.getElementById('formal-color');
+      const defaultColorBtn = document.getElementById('default-color-btn');
+      const formalColorBtn = document.getElementById('formal-color-btn');
+      const buttons = document.querySelectorAll('.pdf-style-btn-group .style-btn');
+
+      const vibrantPresets = [
+        { hex: '#f97316', name: 'Orange' },
+        { hex: '#226e40', name: 'Green' },
+        { hex: '#e11d48', name: 'Coral' },
+        { hex: '#2563eb', name: 'Blue' },
+        { hex: '#0d9488', name: 'Teal' },
+        { hex: '#9333ea', name: 'Purple' },
+        { hex: '#db2777', name: 'Pink' },
+        { hex: '#b45309', name: 'Gold' }
+      ];
+
+      const formalPresets = [
+        { hex: '#111827', name: 'Charcoal Black' },
+        { hex: '#475569', name: 'Slate Gray' },
+        { hex: '#334155', name: 'Navy Slate' },
+        { hex: '#3b4b3c', name: 'Muted Olive' },
+        { hex: '#4a3f35', name: 'Muted Bronze' },
+        { hex: '#3c3b4b', name: 'Muted Indigo' },
+        { hex: '#2f4242', name: 'Muted Teal' },
+        { hex: '#452f35', name: 'Deep Plum' }
+      ];
+      
+      const updateButtonStates = (value) => {
+        buttons.forEach(btn => {
+          if (btn.dataset.value === value) {
+            btn.classList.add('active');
+          } else {
+            btn.classList.remove('active');
+          }
+        });
+        
+        // Show color picker button for active style only
+        if (defaultColorBtn) {
+          defaultColorBtn.style.display = (value === 'default') ? 'flex' : 'none';
+        }
+        if (formalColorBtn) {
+          formalColorBtn.style.display = (value === 'formal') ? 'flex' : 'none';
+        }
+      };
+
+      const updateColorPickerBtnStyle = (btn, color) => {
+        if (btn && color) {
+          btn.style.color = color;
+          btn.style.borderColor = color;
+        }
+      };
+
+      // Initialize default color
+      if (defaultColorInput) {
+        if (!defaultColorInput.value) {
+          const activeTheme = document.documentElement.getAttribute('data-theme') || 'light';
+          defaultColorInput.value = (activeTheme === 'dark') ? '#226e40' : '#f97316';
+        }
+        updateColorPickerBtnStyle(defaultColorBtn, defaultColorInput.value);
+      }
+
+      // Initialize formal color
+      if (formalColorInput) {
+        if (!formalColorInput.value) {
+          formalColorInput.value = '#111827';
+        }
+        updateColorPickerBtnStyle(formalColorBtn, formalColorInput.value);
+      }
+
+      // Set initial active state based on loaded hidden input value
+      if (styleSelect) {
+        if (!styleSelect.value) {
+          styleSelect.value = 'default';
+        }
+        updateButtonStates(styleSelect.value);
+      }
+
+      // Add click listener to style buttons
+      buttons.forEach(btn => {
+        btn.addEventListener('click', () => {
+          const val = btn.dataset.value;
+          if (styleSelect) {
+            styleSelect.value = val;
+            styleSelect.dispatchEvent(new Event('change'));
+          }
+          updateButtonStates(val);
+          showToast(`PDF style set to: ${val.charAt(0).toUpperCase() + val.slice(1)}`);
+        });
+      });
+
+      // Render swatches in popup dynamically based on active button
+      const populateSwatchesInPopup = (style) => {
+        const grid = document.querySelector('.creative-color-popup .color-grid');
+        if (!grid) return;
+        grid.innerHTML = '';
+        
+        const presets = (style === 'formal') ? formalPresets : vibrantPresets;
+        const activeColor = (style === 'formal') ? formalColorInput.value : defaultColorInput.value;
+        
+        presets.forEach(preset => {
+          const swatch = document.createElement('div');
+          swatch.className = 'color-swatch';
+          if (preset.hex.toLowerCase() === activeColor.toLowerCase()) {
+            swatch.classList.add('selected');
+          }
+          swatch.style.backgroundColor = preset.hex;
+          swatch.dataset.color = preset.hex;
+          swatch.title = preset.name;
+          
+          swatch.addEventListener('click', (e) => {
+            e.stopPropagation();
+            selectColor(preset.hex);
+            const popup = document.getElementById('creative-color-popup');
+            if (popup) popup.style.display = 'none';
+          });
+          
+          grid.appendChild(swatch);
+        });
+
+        // Update custom color picker input
+        const customInput = document.getElementById('custom-creative-color-input');
+        if (customInput) {
+          customInput.value = activeColor;
+        }
+      };
+
+      const selectColor = (hexColor) => {
+        const currentStyle = styleSelect.value;
+        if (currentStyle === 'formal') {
+          if (formalColorInput) {
+            formalColorInput.value = hexColor;
+            formalColorInput.dispatchEvent(new Event('change'));
+          }
+          updateColorPickerBtnStyle(formalColorBtn, hexColor);
+        } else {
+          if (defaultColorInput) {
+            defaultColorInput.value = hexColor;
+            defaultColorInput.dispatchEvent(new Event('change'));
+          }
+          updateColorPickerBtnStyle(defaultColorBtn, hexColor);
+        }
+
+        // Highlight active swatch in popup
+        const swatches = document.querySelectorAll('.creative-color-popup .color-swatch');
+        swatches.forEach(sw => {
+          if (sw.dataset.color.toLowerCase() === hexColor.toLowerCase()) {
+            sw.classList.add('selected');
+          } else {
+            sw.classList.remove('selected');
+          }
+        });
+
+        const customInput = document.getElementById('custom-creative-color-input');
+        if (customInput) {
+          customInput.value = hexColor;
+        }
+      };
+
+      // Set up click listeners for the droplet buttons
+      [defaultColorBtn, formalColorBtn].forEach(btn => {
+        if (btn) {
+          btn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const popup = document.getElementById('creative-color-popup');
+            if (popup) {
+              if (popup.style.display === 'block' && activeColorBtn === btn) {
+                popup.style.display = 'none';
+              } else {
+                activeColorBtn = btn;
+                populateSwatchesInPopup(styleSelect.value);
+                openColorPickerPopup(btn);
+              }
+            }
           });
         }
       });
+
+      // Custom color picker input listener
+      const customColorInput = document.getElementById('custom-creative-color-input');
+      if (customColorInput) {
+        const handleCustomColor = (e) => {
+          selectColor(e.target.value);
+        };
+        customColorInput.addEventListener('input', handleCustomColor);
+        customColorInput.addEventListener('change', handleCustomColor);
+      }
+    }
+
+    function openColorPickerPopup(btn) {
+      const popup = document.getElementById('creative-color-popup');
+      if (!btn || !popup) return;
+
+      const rect = btn.getBoundingClientRect();
+      popup.style.display = 'block';
+      
+      const scrollY = window.scrollY || document.documentElement.scrollTop;
+      const scrollX = window.scrollX || document.documentElement.scrollLeft;
+      
+      popup.style.top = `${rect.bottom + scrollY + 8}px`;
+      popup.style.left = `${rect.left + scrollX - (200 - rect.width)}px`;
+      
+      setTimeout(() => {
+        document.addEventListener('click', closeColorPickerOnOutside);
+      }, 0);
+    }
+
+    function closeColorPickerOnOutside(e) {
+      const popup = document.getElementById('creative-color-popup');
+      if (popup && !popup.contains(e.target) && e.target !== activeColorBtn && (!activeColorBtn || !activeColorBtn.contains(e.target))) {
+        popup.style.display = 'none';
+        document.removeEventListener('click', closeColorPickerOnOutside);
+      }
     }
 
     function initDates() {
@@ -1033,12 +1625,12 @@
         <td class="col-desc" data-label="Description"><input type="text" class="shift-desc" value="${defaultDesc}" placeholder=""></td>
         <td class="col-time" data-label="Start Time">
           <div class="time-picker-wrapper">
-            <input type="text" class="time-input shift-start" value="${defaultStart}">
+            <input type="text" class="time-input shift-start" value="${defaultStart}" readonly style="cursor: pointer;">
           </div>
         </td>
         <td class="col-time" data-label="End Time">
           <div class="time-picker-wrapper">
-            <input type="text" class="time-input shift-end" value="${defaultEnd}">
+            <input type="text" class="time-input shift-end" value="${defaultEnd}" readonly style="cursor: pointer;">
           </div>
         </td>
         <td class="col-rate" data-label="Rate (£/hr)"><input type="number" class="shift-rate" value="${defaultRate}" min="0" step="0.01" placeholder=""></td>
@@ -1265,6 +1857,89 @@
     // ==========================================
     // 5. PDF Generation & Formatting
     // ==========================================
+    let georgiaLoaded = false;
+    async function prepareFonts(style) {
+      if (style !== 'formal') {
+        return style;
+      }
+      if (georgiaLoaded) {
+        return style;
+      }
+      try {
+        const response = await fetch('https://cdn.jsdelivr.net/gh/justrajdeep/fonts@master/Georgia.ttf');
+        if (!response.ok) throw new Error('Font download failed');
+        const buffer = await response.arrayBuffer();
+        
+        let binary = '';
+        const bytes = new Uint8Array(buffer);
+        const len = bytes.byteLength;
+        for (let i = 0; i < len; i += 8192) {
+          binary += String.fromCharCode.apply(null, bytes.subarray(i, i + 8192));
+        }
+        const base64 = btoa(binary);
+        
+        if (!pdfMake.vfs) pdfMake.vfs = {};
+        pdfMake.vfs['Georgia.ttf'] = base64;
+        
+        pdfMake.fonts = {
+          Roboto: {
+            normal: 'Roboto-Regular.ttf',
+            bold: 'Roboto-Medium.ttf',
+            italics: 'Roboto-Italic.ttf',
+            bolditalics: 'Roboto-MediumItalic.ttf'
+          },
+          Georgia: {
+            normal: 'Georgia.ttf',
+            bold: 'Georgia.ttf',
+            italics: 'Georgia.ttf',
+            bolditalics: 'Georgia.ttf'
+          }
+        };
+        georgiaLoaded = true;
+        return 'formal';
+      } catch (error) {
+        console.warn("Could not load serif font (Georgia) from CDN. Falling back to default font (Roboto). Error:", error);
+        showToast("Offline: Using default font for Formal style");
+        pdfMake.fonts = {
+          Roboto: {
+            normal: 'Roboto-Regular.ttf',
+            bold: 'Roboto-Medium.ttf',
+            italics: 'Roboto-Italic.ttf',
+            bolditalics: 'Roboto-MediumItalic.ttf'
+          },
+          Georgia: {
+            normal: 'Roboto-Regular.ttf',
+            bold: 'Roboto-Medium.ttf',
+            italics: 'Roboto-Italic.ttf',
+            bolditalics: 'Roboto-MediumItalic.ttf'
+          }
+        };
+        georgiaLoaded = true;
+        return 'formal';
+      }
+    }
+
+    function adjustColorBrightness(hex, percent) {
+      hex = hex.replace(/^\s*#|\s*$/g, '');
+      if (hex.length === 3) {
+        hex = hex.replace(/(.)/g, '$1$1');
+      }
+      
+      let r = parseInt(hex.substr(0, 2), 16),
+          g = parseInt(hex.substr(2, 2), 16),
+          b = parseInt(hex.substr(4, 2), 16);
+
+      r = Math.min(255, Math.max(0, r + Math.round(percent * 2.55)));
+      g = Math.min(255, Math.max(0, g + Math.round(percent * 2.55)));
+      b = Math.min(255, Math.max(0, b + Math.round(percent * 2.55)));
+
+      const rHex = r.toString(16).padStart(2, '0');
+      const gHex = g.toString(16).padStart(2, '0');
+      const bHex = b.toString(16).padStart(2, '0');
+
+      return `#${rHex}${gHex}${bHex}`;
+    }
+
     async function generatePdf() {
       // Validate Form Inputs
       const yourName = document.getElementById('your-name').value.trim();
@@ -1302,281 +1977,329 @@
         return;
       }
 
-      // Fetch all form data
-      const yourEmail = document.getElementById('your-email').value.trim();
-      const yourPhone = document.getElementById('your-phone').value.trim();
-      const defaultJob = document.getElementById('default-job').value.trim() || (hasWages ? "Hourly Work" : "Work Shifts");
-      
-      const empCompany = document.getElementById('employer-company').value.trim() || "Employer";
-      const empName = document.getElementById('employer-name').value.trim();
-      const empAddress = document.getElementById('employer-address').value.trim();
-      
-      const bankAccName = document.getElementById('bank-account-name').value.trim() || yourName;
-      
-      const invNum = document.getElementById('invoice-num').value.trim() || "INV-001";
-      const invDate = formatDate(document.getElementById('invoice-date').value);
-      const weekEnding = formatDate(document.getElementById('week-ending-date').value);
+      // Show loading spinner
+      const originalBtnText = btnDownloadPdf.innerHTML;
+      btnDownloadPdf.disabled = true;
+      btnDownloadPdf.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Generating PDF...';
 
-      // Recalculate totals
-      let grandTotalHours = 0;
-      let grandTotalPay = 0;
-      
-      const shiftDataRows = [];
-      
-      shiftRows.forEach((row, index) => {
-        const rawDate = row.querySelector('.shift-date').value;
-        const formattedDate = formatDate(rawDate);
-        const desc = row.querySelector('.shift-desc').value.trim() || defaultJob;
-        const start = row.querySelector('.shift-start').value;
-        const end = row.querySelector('.shift-end').value;
-        const rate = parseFloat(row.querySelector('.shift-rate').value) || 0;
-        const hours = parseFloat(row.querySelector('.shift-hours').textContent) || 0;
-        const total = parseFloat(row.querySelector('.shift-total').textContent.replace('£', '')) || 0;
+      try {
+        const pdfStyle = document.getElementById('pdf-style-select')?.value || 'default';
+        await prepareFonts(pdfStyle);
 
-        grandTotalHours += hours;
-        grandTotalPay += total;
+        // Fetch all form data
+        const yourEmail = document.getElementById('your-email').value.trim();
+        const yourPhone = document.getElementById('your-phone').value.trim();
+        const defaultJob = document.getElementById('default-job').value.trim() || (hasWages ? "Hourly Work" : "Work Shifts");
+        
+        const empCompany = document.getElementById('employer-company').value.trim() || "Employer";
+        const empName = document.getElementById('employer-name').value.trim();
+        const empAddress = document.getElementById('employer-address').value.trim();
+        
+        const bankAccName = document.getElementById('bank-account-name').value.trim() || yourName;
+        
+        const invNum = document.getElementById('invoice-num').value.trim() || "INV-001";
+        const invDate = formatDate(document.getElementById('invoice-date').value);
+        const weekEnding = formatDate(document.getElementById('week-ending-date').value);
 
-        const timeText = (start && end) ? `${start} - ${end}` : "N/A";
+        // Resolve style variables
+        let fontName = 'Roboto';
+        let primaryColor = '#1E3A8A';
+        let accentColor = '#2563EB';
+        let bgColor = '#EFF6FF';
+        let zebraColor = '#F8FAFC';
+        let borderColor = '#E5E7EB';
+        let accentLineColor = '#2563EB';
+        let headingColor = '#1E3A8A';
+        
+        const activeTheme = document.documentElement.getAttribute('data-theme') || 'light';
 
-        if (hasWages) {
-          shiftDataRows.push([
-            { text: formattedDate, style: 'tableCell' },
-            { text: desc, style: 'tableCell' },
-            { text: timeText, style: 'tableCell' },
-            { text: `£${rate.toFixed(2)}`, style: 'tableCell' },
-            { text: hours.toFixed(2), style: 'tableCell' },
-            { text: `£${total.toFixed(2)}`, style: 'tableCell' }
-          ]);
-        } else {
-          shiftDataRows.push([
-            { text: formattedDate, style: 'tableCell' },
-            { text: desc, style: 'tableCell' },
-            { text: timeText, style: 'tableCell' },
-            { text: hours.toFixed(2), style: 'tableCell' }
-          ]);
-        }
-      });
-
-      // 5. Shifts Table
-      const shiftsTable = {
-        table: {
-          headerRows: 1,
-          widths: hasWages ? ['15%', '35%', '20%', '10%', '10%', '10%'] : ['15%', '50%', '20%', '15%'],
-          body: [
-            // Table Header Row
-            hasWages ? [
-              { text: 'Date', style: 'tableHeader' },
-              { text: 'Description', style: 'tableHeader' },
-              { text: 'Times', style: 'tableHeader' },
-              { text: 'Rate', style: 'tableHeader' },
-              { text: 'Hours', style: 'tableHeader' },
-              { text: 'Total', style: 'tableHeader' }
-            ] : [
-              { text: 'Date', style: 'tableHeader' },
-              { text: 'Description', style: 'tableHeader' },
-              { text: 'Times', style: 'tableHeader' },
-              { text: 'Hours', style: 'tableHeader' }
-            ],
-            ...shiftDataRows
-          ]
-        },
-        layout: {
-          hLineWidth: function (i, node) {
-            return (i === 0 || i === node.table.body.length) ? 0 : 0.5;
-          },
-          vLineWidth: function (i, node) { return 0; },
-          hLineColor: function (i, node) { return '#E5E7EB'; },
-          fillColor: function (rowIndex, node, columnIndex) {
-            if (rowIndex === 0) return '#1E3A8A';
-            return (rowIndex % 2 === 0) ? '#F8FAFC' : null;
+        if (pdfStyle === 'default') {
+          fontName = 'Roboto';
+          let baseColor = document.getElementById('default-color')?.value || '';
+          if (!baseColor) {
+            baseColor = (activeTheme === 'dark') ? '#226e40' : '#f97316';
           }
+          accentColor = baseColor;
+          accentLineColor = baseColor;
+          primaryColor = adjustColorBrightness(baseColor, -30);
+          headingColor = adjustColorBrightness(baseColor, -35);
+          bgColor = adjustColorBrightness(baseColor, 85);
+          zebraColor = adjustColorBrightness(baseColor, 93);
+          borderColor = adjustColorBrightness(baseColor, 60);
+        } else if (pdfStyle === 'formal') {
+          fontName = 'Georgia';
+          let baseColor = document.getElementById('formal-color')?.value || '#111827';
+          primaryColor = baseColor;
+          headingColor = baseColor;
+          accentColor = adjustColorBrightness(baseColor, 35);
+          bgColor = adjustColorBrightness(baseColor, 92);
+          zebraColor = adjustColorBrightness(baseColor, 96);
+          borderColor = adjustColorBrightness(baseColor, 80);
+          accentLineColor = baseColor;
         }
-      };
 
-      // 6. Totals Box (Right-aligned)
-      const totalsBoxTableBody = hasWages ? [
-        [
-          { text: 'Total Hours:', fontSize: 9, color: '#4B5563', margin: [0, 4, 0, 4] },
-          { text: `${grandTotalHours.toFixed(2)} hrs`, fontSize: 9, bold: true, alignment: 'right', margin: [0, 4, 0, 4] }
-        ],
-        [
-          { text: 'TOTAL DUE:', fontSize: 11, bold: true, color: '#1E3A8A', fillColor: '#EFF6FF', margin: [4, 6, 4, 6] },
-          { text: `£${grandTotalPay.toFixed(2)}`, fontSize: 11, bold: true, color: '#2563EB', alignment: 'right', fillColor: '#EFF6FF', margin: [4, 6, 4, 6] }
-        ]
-      ] : [
-        [
-          { text: 'Total Hours:', fontSize: 11, bold: true, color: '#1E3A8A', fillColor: '#EFF6FF', margin: [4, 6, 4, 6] },
-          { text: `${grandTotalHours.toFixed(2)} hrs`, fontSize: 11, bold: true, color: '#2563EB', alignment: 'right', fillColor: '#EFF6FF', margin: [4, 6, 4, 6] }
-        ]
-      ];
+        // Recalculate totals
+        let grandTotalHours = 0;
+        let grandTotalPay = 0;
+        
+        const shiftDataRows = [];
+        
+        shiftRows.forEach((row, index) => {
+          const rawDate = row.querySelector('.shift-date').value;
+          const formattedDate = formatDate(rawDate);
+          const desc = row.querySelector('.shift-desc').value.trim() || defaultJob;
+          const start = row.querySelector('.shift-start').value;
+          const end = row.querySelector('.shift-end').value;
+          const rate = parseFloat(row.querySelector('.shift-rate').value) || 0;
+          const hours = parseFloat(row.querySelector('.shift-hours').textContent) || 0;
+          const total = parseFloat(row.querySelector('.shift-total').textContent.replace('£', '')) || 0;
 
-      const totalsBox = {
-        columns: [
-          { width: '*', text: '' }, // spacer
-          {
-            width: 200,
-            table: {
-              widths: ['50%', '50%'],
-              body: totalsBoxTableBody
-            },
-            layout: {
-              hLineWidth: function (i, node) {
-                return (hasWages && i === 1) ? 1 : 0;
-              },
-              vLineWidth: function (i, node) { return 0; },
-              hLineColor: function (i, node) { return '#2563EB'; }
-            },
-            margin: [0, 10, 0, 20]
+          grandTotalHours += hours;
+          grandTotalPay += total;
+
+          const timeText = (start && end) ? `${start} - ${end}` : "N/A";
+
+          if (hasWages) {
+            shiftDataRows.push([
+              { text: formattedDate, style: 'tableCell' },
+              { text: desc, style: 'tableCell' },
+              { text: timeText, style: 'tableCell' },
+              { text: `£${rate.toFixed(2)}`, style: 'tableCell' },
+              { text: hours.toFixed(2), style: 'tableCell' },
+              { text: `£${total.toFixed(2)}`, style: 'tableCell' }
+            ]);
+          } else {
+            shiftDataRows.push([
+              { text: formattedDate, style: 'tableCell' },
+              { text: desc, style: 'tableCell' },
+              { text: timeText, style: 'tableCell' },
+              { text: hours.toFixed(2), style: 'tableCell' }
+            ]);
           }
-        ]
-      };
+        });
 
-      // Define PDF Document Schema
-      const docDefinition = {
-        pageMargins: [40, 50, 40, 50],
-        content: [
-          // 1. Header (Name/Title on Left, INVOICE info on Right)
-          {
-            columns: [
-              {
-                stack: [
-                  { text: yourName, fontSize: 22, bold: true, color: '#1E3A8A', margin: [0, 0, 0, 4] },
-                  { text: defaultJob, fontSize: 11, bold: true, color: '#4B5563', margin: [0, 0, 0, 10] },
-                  { text: `Email: ${yourEmail || 'N/A'}    |    Phone: ${yourPhone || 'N/A'}`, fontSize: 8.5, color: '#6B7280' }
-                ],
-                width: '60%'
-              },
-              {
-                stack: [
-                  { text: hasWages ? 'INVOICE' : 'TIMESHEET', fontSize: 24, bold: true, color: '#2563EB', margin: [0, 0, 0, 8] },
-                  { text: `Invoice #: ${invNum}`, fontSize: 9, bold: true, color: '#4B5563', margin: [0, 0, 0, 3] },
-                  { text: `Date: ${invDate}`, fontSize: 9, color: '#4B5563', margin: [0, 0, 0, 3] },
-                  { text: `Week Ending: ${weekEnding || 'N/A'}`, fontSize: 9, bold: true, color: '#4B5563' }
-                ],
-                alignment: 'right',
-                width: '40%'
-              }
-            ]
-          },
-          
-          // 2. Horizontal Colored Accent Line
-          {
-            canvas: [
-              {
-                type: 'rect',
-                x: 0,
-                y: 0,
-                w: 515,
-                h: 3,
-                color: '#2563EB'
-              }
-            ],
-            margin: [0, 15, 0, 15]
-          },
-          
-          // 3. Billing Address Card
-          {
-            stack: [
-              { text: 'PREPARED FOR:', fontSize: 8.5, bold: true, color: '#2563EB', margin: [0, 0, 0, 4] },
-              { text: empCompany, fontSize: 12, bold: true, color: '#1E3A8A', margin: [0, 0, 0, 4] },
-              empName ? { text: `Attn: ${empName}`, fontSize: 9, margin: [0, 0, 0, 2] } : null,
-              empAddress ? { text: empAddress, fontSize: 9, color: '#4B5563', lineHeight: 1.2 } : null
-            ].filter(Boolean),
-            margin: [0, 0, 0, 20]
-          },
-          
-          // 4. Shifts Heading
-          {
-            text: hasWages ? 'SHIFT LOG & WAGES BREAKDOWN' : 'SHIFT LOG & HOURS WORKED',
-            fontSize: 10,
-            bold: true,
-            color: '#1E3A8A',
-            margin: [0, 0, 0, 8]
-          },
-          
-          // 5. Shifts Table
-          shiftsTable,
-          
-          // 6. Totals Box (Right-aligned)
-          totalsBox
-        ],
-        styles: {
-          tableHeader: {
-            bold: true,
-            fontSize: 9,
-            color: 'white',
-            margin: [4, 6, 4, 6]
-          },
-          tableCell: {
-            fontSize: 9,
-            color: '#1F2937',
-            margin: [4, 6, 4, 6]
-          }
-        }
-      };
-
-      // 7. Bank Details Callout Card (Optional: only if bank details are entered)
-      const hasBankDetails = bankName || bankAccNum || bankSortCode;
-      if (hasBankDetails) {
-        docDefinition.content.push({
+        // 5. Shifts Table
+        const shiftsTable = {
           table: {
-            widths: ['100%'],
+            headerRows: 1,
+            widths: hasWages ? ['15%', '35%', '20%', '10%', '10%', '10%'] : ['15%', '50%', '20%', '15%'],
             body: [
-              [
-                {
-                  stack: [
-                    { text: 'BANK PAYMENT DETAILS', fontSize: 10, bold: true, color: '#1E3A8A', margin: [0, 0, 0, 6] },
-                    {
-                      table: {
-                        widths: ['30%', '70%'],
-                        body: [
-                          bankName ? [
-                            { text: 'Bank Name:', bold: true, fontSize: 9, color: '#4B5563', margin: [0, 2, 0, 2] },
-                            { text: bankName, fontSize: 9, margin: [0, 2, 0, 2] }
-                          ] : null,
-                          bankAccName ? [
-                            { text: 'Account Name:', bold: true, fontSize: 9, color: '#4B5563', margin: [0, 2, 0, 2] },
-                            { text: bankAccName, fontSize: 9, margin: [0, 2, 0, 2] }
-                          ] : null,
-                          bankAccNum ? [
-                            { text: 'Account Number:', bold: true, fontSize: 9, color: '#4B5563', margin: [0, 2, 0, 2] },
-                            { text: bankAccNum, fontSize: 9, margin: [0, 2, 0, 2] }
-                          ] : null,
-                          bankSortCode ? [
-                            { text: 'Sort Code:', bold: true, fontSize: 9, color: '#4B5563', margin: [0, 2, 0, 2] },
-                            { text: bankSortCode, fontSize: 9, margin: [0, 2, 0, 2] }
-                          ] : null
-                        ].filter(Boolean)
-                      },
-                      layout: 'noBorders'
-                    }
-                  ],
-                  fillColor: '#F8FAFC',
-                  margin: [12, 10, 12, 10]
-                }
-              ]
+              // Table Header Row
+              hasWages ? [
+                { text: 'Date', style: 'tableHeader' },
+                { text: 'Description', style: 'tableHeader' },
+                { text: 'Times', style: 'tableHeader' },
+                { text: 'Rate', style: 'tableHeader' },
+                { text: 'Hours', style: 'tableHeader' },
+                { text: 'Total', style: 'tableHeader' }
+              ] : [
+                { text: 'Date', style: 'tableHeader' },
+                { text: 'Description', style: 'tableHeader' },
+                { text: 'Times', style: 'tableHeader' },
+                { text: 'Hours', style: 'tableHeader' }
+              ],
+              ...shiftDataRows
             ]
           },
           layout: {
-            hLineWidth: function (i, node) { return 0; },
-            vLineWidth: function (i, node) { return (i === 0) ? 4 : 0; }, // 4pt left accent line
-            vLineColor: function (i, node) { return '#2563EB'; }
+            hLineWidth: function (i, node) {
+              return (i === 0 || i === node.table.body.length) ? 0 : 0.5;
+            },
+            vLineWidth: function (i, node) { return 0; },
+            hLineColor: function (i, node) { return borderColor; },
+            fillColor: function (rowIndex, node, columnIndex) {
+              if (rowIndex === 0) return primaryColor;
+              return (rowIndex % 2 === 0) ? zebraColor : null;
+            }
+          }
+        };
+
+        // 6. Totals Box (Right-aligned)
+        const totalsBoxTableBody = hasWages ? [
+          [
+            { text: 'Total Hours:', fontSize: 9, color: '#4B5563', margin: [0, 4, 0, 4] },
+            { text: `${grandTotalHours.toFixed(2)} hrs`, fontSize: 9, bold: true, alignment: 'right', margin: [0, 4, 0, 4] }
+          ],
+          [
+            { text: 'TOTAL DUE:', fontSize: 11, bold: true, color: primaryColor, fillColor: bgColor, margin: [4, 6, 4, 6] },
+            { text: `£${grandTotalPay.toFixed(2)}`, fontSize: 11, bold: true, color: accentColor, alignment: 'right', fillColor: bgColor, margin: [4, 6, 4, 6] }
+          ]
+        ] : [
+          [
+            { text: 'Total Hours:', fontSize: 11, bold: true, color: primaryColor, fillColor: bgColor, margin: [4, 6, 4, 6] },
+            { text: `${grandTotalHours.toFixed(2)} hrs`, fontSize: 11, bold: true, color: accentColor, alignment: 'right', fillColor: bgColor, margin: [4, 6, 4, 6] }
+          ]
+        ];
+
+        const totalsBox = {
+          columns: [
+            { width: '*', text: '' }, // spacer
+            {
+              width: 200,
+              table: {
+                widths: ['50%', '50%'],
+                body: totalsBoxTableBody
+              },
+              layout: {
+                hLineWidth: function (i, node) {
+                  return (hasWages && i === 1) ? 1 : 0;
+                },
+                vLineWidth: function (i, node) { return 0; },
+                hLineColor: function (i, node) { return accentColor; }
+              },
+              margin: [0, 10, 0, 20]
+            }
+          ]
+        };
+
+        // Define PDF Document Schema
+        const docDefinition = {
+          pageMargins: [40, 50, 40, 50],
+          defaultStyle: {
+            font: fontName
           },
-          margin: [0, 15, 0, 30]
+          content: [
+            // 1. Header (Name/Title on Left, INVOICE info on Right)
+            {
+              columns: [
+                {
+                  stack: [
+                    { text: yourName, fontSize: 22, bold: true, color: headingColor, margin: [0, 0, 0, 4] },
+                    { text: defaultJob, fontSize: 11, bold: true, color: '#4B5563', margin: [0, 0, 0, 10] },
+                    { text: `Email: ${yourEmail || 'N/A'}    |    Phone: ${yourPhone || 'N/A'}`, fontSize: 8.5, color: '#6B7280' }
+                  ],
+                  width: '60%'
+                },
+                {
+                  stack: [
+                    { text: hasWages ? 'INVOICE' : 'TIMESHEET', fontSize: 24, bold: true, color: accentColor, margin: [0, 0, 0, 8] },
+                    { text: `Invoice #: ${invNum}`, fontSize: 9, bold: true, color: '#4B5563', margin: [0, 0, 0, 3] },
+                    { text: `Date: ${invDate}`, fontSize: 9, color: '#4B5563', margin: [0, 0, 0, 3] },
+                    { text: `Week Ending: ${weekEnding || 'N/A'}`, fontSize: 9, bold: true, color: '#4B5563' }
+                  ],
+                  alignment: 'right',
+                  width: '40%'
+                }
+              ]
+            },
+            
+            // 2. Horizontal Colored Accent Line
+            {
+              canvas: [
+                {
+                  type: 'rect',
+                  x: 0,
+                  y: 0,
+                  w: 515,
+                  h: 3,
+                  color: accentColor
+                }
+              ],
+              margin: [0, 15, 0, 15]
+            },
+            
+            // 3. Billing Address Card
+            {
+              stack: [
+                { text: 'PREPARED FOR:', fontSize: 8.5, bold: true, color: accentColor, margin: [0, 0, 0, 4] },
+                { text: empCompany, fontSize: 12, bold: true, color: primaryColor, margin: [0, 0, 0, 4] },
+                empName ? { text: `Attn: ${empName}`, fontSize: 9, margin: [0, 0, 0, 2] } : null,
+                empAddress ? { text: empAddress, fontSize: 9, color: '#4B5563', lineHeight: 1.2 } : null
+              ].filter(Boolean),
+              margin: [0, 0, 0, 20]
+            },
+            
+            // 4. Shifts Heading
+            {
+              text: hasWages ? 'SHIFT LOG & WAGES BREAKDOWN' : 'SHIFT LOG & HOURS WORKED',
+              fontSize: 10,
+              bold: true,
+              color: primaryColor,
+              margin: [0, 0, 0, 8]
+            },
+            
+            // 5. Shifts Table
+            shiftsTable,
+            
+            // 6. Totals Box (Right-aligned)
+            totalsBox
+          ],
+          styles: {
+            tableHeader: {
+              bold: true,
+              fontSize: 9,
+              color: 'white',
+              margin: [4, 6, 4, 6]
+            },
+            tableCell: {
+              fontSize: 9,
+              color: '#1F2937',
+              margin: [4, 6, 4, 6]
+            }
+          }
+        };
+
+        // 7. Bank Details Callout Card (Optional: only if bank details are entered)
+        const hasBankDetails = bankName || bankAccNum || bankSortCode;
+        if (hasBankDetails) {
+          docDefinition.content.push({
+            table: {
+              widths: ['100%'],
+              body: [
+                [
+                  {
+                    stack: [
+                      { text: 'BANK PAYMENT DETAILS', fontSize: 10, bold: true, color: primaryColor, margin: [0, 0, 0, 6] },
+                      {
+                        table: {
+                          widths: ['30%', '70%'],
+                          body: [
+                            bankName ? [
+                              { text: 'Bank Name:', bold: true, fontSize: 9, color: '#4B5563', margin: [0, 2, 0, 2] },
+                              { text: bankName, fontSize: 9, margin: [0, 2, 0, 2] }
+                            ] : null,
+                            bankAccName ? [
+                              { text: 'Account Name:', bold: true, fontSize: 9, color: '#4B5563', margin: [0, 2, 0, 2] },
+                              { text: bankAccName, fontSize: 9, margin: [0, 2, 0, 2] }
+                            ] : null,
+                            bankAccNum ? [
+                              { text: 'Account Number:', bold: true, fontSize: 9, color: '#4B5563', margin: [0, 2, 0, 2] },
+                              { text: bankAccNum, fontSize: 9, margin: [0, 2, 0, 2] }
+                            ] : null,
+                            bankSortCode ? [
+                              { text: 'Sort Code:', bold: true, fontSize: 9, color: '#4B5563', margin: [0, 2, 0, 2] },
+                              { text: bankSortCode, fontSize: 9, margin: [0, 2, 0, 2] }
+                            ] : null
+                          ].filter(Boolean)
+                        },
+                        layout: 'noBorders'
+                      }
+                    ],
+                    fillColor: bgColor,
+                    margin: [12, 10, 12, 10]
+                  }
+                ]
+              ]
+            },
+            layout: {
+              hLineWidth: function (i, node) { return 0; },
+              vLineWidth: function (i, node) { return (i === 0) ? 4 : 0; }, // 4pt left accent line
+              vLineColor: function (i, node) { return accentColor; }
+            },
+            margin: [0, 15, 0, 30]
+          });
+        }
+
+        // 8. Footer Message
+        const customFooterMessage = document.getElementById('custom-footer-message')?.value.trim();
+        docDefinition.content.push({
+          text: customFooterMessage || 'Thank you!',
+          alignment: 'center',
+          fontSize: 10,
+          color: '#6B7280',
+          margin: [0, 15, 0, 0]
         });
-      }
 
-      // 8. Footer Message
-      docDefinition.content.push({
-        text: 'Thank you!',
-        alignment: 'center',
-        fontSize: 10,
-        color: '#6B7280',
-        margin: [0, 10, 0, 0]
-      });
-
-      // Generate and Download
-      try {
         const cleanDate = weekEnding ? weekEnding.replace(/[\s,]+/g, '_') : 'Invoice';
         const cleanName = yourName.replace(/\s+/g, '_');
         const filePrefix = hasWages ? 'Invoice' : 'Timesheet';
@@ -1587,6 +2310,9 @@
       } catch (error) {
         console.error("Error generating pdf:", error);
         alert("An error occurred while generating the PDF. Please check console details.");
+      } finally {
+        btnDownloadPdf.disabled = false;
+        btnDownloadPdf.innerHTML = originalBtnText;
       }
     }
 
@@ -1606,149 +2332,162 @@
     }
 
     // ==========================================
-    // 7. Time Picker Custom Dropdown Helpers (Google Calendar UI)
+    // 7. Custom Time Picker Modal Logic (iOS/Android Style Scroll Picker)
     // ==========================================
-    let activeTimeInput = null;
-    const globalTimeDropdown = document.createElement('div');
-    globalTimeDropdown.className = 'time-dropdown-list hidden';
-    document.body.appendChild(globalTimeDropdown);
+    let currentPickerTarget = null;
 
     function initTimePicker(row) {
       const startInput = row.querySelector('.shift-start');
       const endInput = row.querySelector('.shift-end');
       
-      setupInputDropdown(startInput, () => generateStartOptions());
-      setupInputDropdown(endInput, () => generateEndOptions(startInput.value));
+      startInput.addEventListener('click', () => openTimePicker(startInput, "Select Start Time"));
+      endInput.addEventListener('click', () => openTimePicker(endInput, "Select End Time"));
     }
 
-    function setupInputDropdown(input, getOptionsFn) {
-      // Show dropdown on focus
-      input.addEventListener('focus', () => {
-        activeTimeInput = input;
-        populateDropdown(input, globalTimeDropdown, getOptionsFn());
-        positionDropdown(input);
-        globalTimeDropdown.classList.remove('hidden');
-      });
+    function initTimePickerModal() {
+      const hoursWheel = document.getElementById('wheel-hours');
+      const minutesWheel = document.getElementById('wheel-minutes');
       
-      // Filter options on input typing
-      input.addEventListener('input', () => {
-        const filterText = input.value.toLowerCase().trim();
-        const options = getOptionsFn();
-        const filtered = options.filter(opt => opt.time.includes(filterText));
-        activeTimeInput = input;
-        populateDropdown(input, globalTimeDropdown, filtered);
-        positionDropdown(input);
-        globalTimeDropdown.classList.remove('hidden');
-      });
-    }
-
-    function positionDropdown(input) {
-      const rect = input.getBoundingClientRect();
-      globalTimeDropdown.style.top = `${rect.bottom + window.scrollY + 4}px`;
-      globalTimeDropdown.style.left = `${rect.left + window.scrollX}px`;
-      globalTimeDropdown.style.width = `${Math.max(150, rect.width)}px`;
-    }
-
-    function populateDropdown(input, dropdown, options) {
-      dropdown.innerHTML = '';
-      if (options.length === 0) {
-        const noResults = document.createElement('div');
-        noResults.className = 'time-dropdown-item';
-        noResults.style.color = 'var(--text-muted)';
-        noResults.style.cursor = 'default';
-        noResults.textContent = 'No options';
-        dropdown.appendChild(noResults);
-        return;
-      }
-      
-      options.forEach(opt => {
-        const item = document.createElement('div');
-        item.className = 'time-dropdown-item';
-        
-        const timeSpan = document.createElement('span');
-        timeSpan.textContent = opt.time;
-        item.appendChild(timeSpan);
-        
-        if (opt.duration) {
-          const durSpan = document.createElement('span');
-          durSpan.className = 'duration-hint';
-          durSpan.textContent = opt.duration;
-          item.appendChild(durSpan);
-        }
-        
-        item.addEventListener('mousedown', (e) => {
-          e.preventDefault(); // Prevent input from losing focus immediately
-          input.value = opt.time;
-          closeAllDropdowns();
-          
-          const row = input.closest('tr');
-          recalculateRow(row);
-          recalculateAll();
-          saveAllShifts();
-        });
-        
-        dropdown.appendChild(item);
-      });
-    }
-
-    function generateStartOptions() {
-      const options = [];
+      // Populate Hours (00-23)
+      hoursWheel.innerHTML = '<div class="picker-wheel-spacer"></div>';
       for (let h = 0; h < 24; h++) {
-        for (let m = 0; m < 60; m += 10) {
-          const hh = String(h).padStart(2, '0');
-          const mm = String(m).padStart(2, '0');
-          options.push({ time: `${hh}:${mm}` });
-        }
+        const div = document.createElement('div');
+        div.className = 'picker-item';
+        div.textContent = String(h).padStart(2, '0');
+        div.dataset.value = h;
+        hoursWheel.appendChild(div);
       }
-      return options;
+      hoursWheel.innerHTML += '<div class="picker-wheel-spacer"></div>';
+      
+      // Populate Minutes (00-55 in 5-minute intervals)
+      minutesWheel.innerHTML = '<div class="picker-wheel-spacer"></div>';
+      for (let m = 0; m < 60; m += 5) {
+        const div = document.createElement('div');
+        div.className = 'picker-item';
+        div.textContent = String(m).padStart(2, '0');
+        div.dataset.value = m;
+        minutesWheel.appendChild(div);
+      }
+      minutesWheel.innerHTML += '<div class="picker-wheel-spacer"></div>';
+      
+      // Setup scroll snap selectors
+      setupWheelScroll(hoursWheel);
+      setupWheelScroll(minutesWheel);
+      
+      // Bind confirm/cancel actions
+      document.getElementById('btn-picker-cancel').addEventListener('click', closeTimePicker);
+      document.getElementById('btn-picker-confirm').addEventListener('click', confirmTimeSelection);
+      
+      // Close on clicking backdrop
+      document.getElementById('time-picker-modal').addEventListener('click', (e) => {
+        if (e.target.id === 'time-picker-modal') {
+          closeTimePicker();
+        }
+      });
     }
 
-    function generateEndOptions(startTimeVal) {
-      const options = [];
-      let startMins = 0;
-      let hasStart = false;
+    function openTimePicker(input, title) {
+      currentPickerTarget = input;
+      document.getElementById('time-picker-title').textContent = title;
       
-      if (startTimeVal && startTimeVal.includes(':')) {
-        const [startH, startM] = startTimeVal.split(':').map(Number);
-        if (!isNaN(startH) && !isNaN(startM)) {
-          startMins = startH * 60 + startM;
-          hasStart = true;
-        }
+      // Parse current value or use defaults
+      let val = input.value || "10:00";
+      let [h, m] = val.split(':').map(Number);
+      if (isNaN(h)) h = 10;
+      if (isNaN(m)) m = 0;
+      
+      // Round minutes to nearest 5
+      m = Math.round(m / 5) * 5;
+      if (m >= 60) {
+        m = 55;
       }
       
-      // Generate suggestions relative to start time
-      for (let offset = 10; offset <= 24 * 60; offset += 10) {
-        const totalMins = (hasStart ? startMins + offset : offset) % (24 * 60);
-        const h = Math.floor(totalMins / 60);
-        const m = totalMins % 60;
-        const hh = String(h).padStart(2, '0');
-        const mm = String(m).padStart(2, '0');
+      // Show modal
+      const modal = document.getElementById('time-picker-modal');
+      modal.classList.remove('hidden');
+      
+      // Position wheels to match current values (after modal is shown)
+      scrollToValue('wheel-hours', h);
+      scrollToValue('wheel-minutes', m / 5);
+    }
+
+    function scrollToValue(wheelId, index) {
+      const wheel = document.getElementById(wheelId);
+      wheel.scrollTo({ top: index * 40, behavior: 'auto' });
+      
+      // Force selected class immediately
+      const items = wheel.querySelectorAll('.picker-item');
+      items.forEach((item, idx) => {
+        if (idx === index) {
+          item.classList.add('selected');
+        } else {
+          item.classList.remove('selected');
+        }
+      });
+    }
+
+    function setupWheelScroll(wheel) {
+      const updateSelection = () => {
+        const items = wheel.querySelectorAll('.picker-item');
+        const selectedIndex = Math.round(wheel.scrollTop / 40);
+        const clampedIndex = Math.max(0, Math.min(items.length - 1, selectedIndex));
         
-        options.push({
-          time: `${hh}:${mm}`
+        items.forEach((item, idx) => {
+          if (idx === clampedIndex) {
+            item.classList.add('selected');
+          } else {
+            item.classList.remove('selected');
+          }
         });
-      }
-      return options;
+      };
+      
+      wheel.addEventListener('scroll', updateSelection);
+      
+      // Scroll to item on click
+      wheel.addEventListener('click', (e) => {
+        const item = e.target.closest('.picker-item');
+        if (item) {
+          const items = Array.from(wheel.querySelectorAll('.picker-item'));
+          const idx = items.indexOf(item);
+          if (idx !== -1) {
+            wheel.scrollTo({ top: idx * 40, behavior: 'smooth' });
+          }
+        }
+      });
     }
 
-    function closeAllDropdowns() {
-      globalTimeDropdown.classList.add('hidden');
-      activeTimeInput = null;
+    function confirmTimeSelection() {
+      if (currentPickerTarget) {
+        const hoursWheel = document.getElementById('wheel-hours');
+        const minutesWheel = document.getElementById('wheel-minutes');
+        
+        const hoursItems = hoursWheel.querySelectorAll('.picker-item');
+        const minutesItems = minutesWheel.querySelectorAll('.picker-item');
+        
+        const selectedHourIdx = Math.round(hoursWheel.scrollTop / 40);
+        const selectedMinIdx = Math.round(minutesWheel.scrollTop / 40);
+        
+        const clampedHIdx = Math.max(0, Math.min(hoursItems.length - 1, selectedHourIdx));
+        const clampedMIdx = Math.max(0, Math.min(minutesItems.length - 1, selectedMinIdx));
+        
+        const hVal = String(hoursItems[clampedHIdx].dataset.value).padStart(2, '0');
+        const mVal = String(minutesItems[clampedMIdx].dataset.value).padStart(2, '0');
+        
+        currentPickerTarget.value = `${hVal}:${mVal}`;
+        
+        const row = currentPickerTarget.closest('tr');
+        recalculateRow(row);
+        recalculateAll();
+        saveAllShifts();
+      }
+      closeTimePicker();
     }
 
-    // Global click outside to close dropdowns
-    document.addEventListener('click', (e) => {
-      if (activeTimeInput && !activeTimeInput.contains(e.target) && !globalTimeDropdown.contains(e.target)) {
-        closeAllDropdowns();
-      }
-    });
+    function closeTimePicker() {
+      document.getElementById('time-picker-modal').classList.add('hidden');
+      currentPickerTarget = null;
+    }
 
-    // Close dropdown on window resize or page scroll to avoid positioning disconnects
-    window.addEventListener('resize', closeAllDropdowns);
-    document.addEventListener('scroll', (e) => {
-      if (globalTimeDropdown.contains(e.target)) return;
-      closeAllDropdowns();
-    }, { capture: true, passive: true });
 
     // Register Service Worker for PWA installation (requires HTTPS/localhost)
     if ('serviceWorker' in navigator && (window.location.protocol === 'https:' || window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')) {
@@ -1759,5 +2498,25 @@
       });
     }
   </script>
+
+  <!-- Creative Color Picker Popover -->
+  <div id="creative-color-popup" class="creative-color-popup" style="display: none;">
+    <div class="color-grid">
+      <div class="color-swatch" style="background-color: #f97316;" data-color="#f97316" title="Orange"></div>
+      <div class="color-swatch" style="background-color: #226e40;" data-color="#226e40" title="Green"></div>
+      <div class="color-swatch" style="background-color: #e11d48;" data-color="#e11d48" title="Coral"></div>
+      <div class="color-swatch" style="background-color: #2563eb;" data-color="#2563eb" title="Blue"></div>
+      <div class="color-swatch" style="background-color: #0d9488;" data-color="#0d9488" title="Teal"></div>
+      <div class="color-swatch" style="background-color: #9333ea;" data-color="#9333ea" title="Purple"></div>
+      <div class="color-swatch" style="background-color: #db2777;" data-color="#db2777" title="Pink"></div>
+      <div class="color-swatch" style="background-color: #b45309;" data-color="#b45309" title="Gold"></div>
+    </div>
+    <div class="custom-color-row">
+      <label for="custom-creative-color-input" class="custom-color-label">
+        <i class="fa-solid fa-eye-dropper"></i> Custom Color
+      </label>
+      <input type="color" id="custom-creative-color-input" value="#f97316">
+    </div>
+  </div>
 </body>
 </html>

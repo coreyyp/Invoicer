@@ -1,0 +1,1763 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WorkShift Invoice Generator - Standalone PDF Invoice Tool</title>
+  <meta name="description" content="Generate simple, modern, clean wage payment invoice PDFs from your shift history in seconds. Standalone HTML file running entirely in the browser.">
+  <link rel="manifest" href="manifest.json">
+  
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@500;600;700&display=swap" rel="stylesheet">
+  
+  <!-- Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <!-- pdfmake Library (Required for PDF Generation) -->
+  <script src="https://cdn.jsdelivr.net/npm/pdfmake@0.2.14/build/pdfmake.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/pdfmake@0.2.14/build/vfs_fonts.js"></script>
+
+  <!-- Embed styles.css contents directly -->
+  <style>
+    /* Design System & Themes */
+    :root {
+      /* Font Family */
+      --font-heading: 'Outfit', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      --font-body: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+
+      /* HSL Color Palette (Light Theme Default) */
+      --hue: 220;
+      --primary: hsl(var(--hue), 85%, 57%);
+      --primary-hover: hsl(var(--hue), 85%, 48%);
+      --primary-rgb: 37, 99, 235;
+      --background: hsl(var(--hue), 30%, 96%);
+      --surface: hsl(var(--hue), 0%, 100%);
+      --surface-secondary: hsl(var(--hue), 20%, 98%);
+      --text-main: hsl(var(--hue), 40%, 12%);
+      --text-muted: hsl(var(--hue), 15%, 45%);
+      --border: hsl(var(--hue), 20%, 88%);
+      --border-focus: hsl(var(--hue), 80%, 70%);
+      --error: hsl(0, 75%, 60%);
+      --success: hsl(142, 70%, 45%);
+      --success-bg: hsl(142, 70%, 95%);
+      --accent: hsl(260, 80%, 65%);
+      
+      /* Decorative Gradients */
+      --gradient-brand: linear-gradient(135deg, var(--primary), var(--accent));
+      
+      /* Shadow Levels */
+      --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.02);
+      --shadow-md: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
+      --shadow-lg: 0 20px 40px -15px rgba(0, 0, 0, 0.08);
+
+      /* Radius */
+      --radius-sm: 8px;
+      --radius-md: 14px;
+      --radius-lg: 20px;
+      
+      --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    [data-theme="dark"] {
+      --background: hsl(var(--hue), 24%, 10%);
+      --surface: hsl(var(--hue), 20%, 14%);
+      --surface-secondary: hsl(var(--hue), 18%, 18%);
+      --text-main: hsl(var(--hue), 20%, 94%);
+      --text-muted: hsl(var(--hue), 12%, 65%);
+      --border: hsl(var(--hue), 15%, 22%);
+      --border-focus: hsl(var(--hue), 70%, 50%);
+      --success-bg: hsl(142, 60%, 15%);
+      --shadow-md: 0 10px 25px -5px rgba(0, 0, 0, 0.3), 0 8px 10px -6px rgba(0, 0, 0, 0.3);
+      --shadow-lg: 0 20px 40px -15px rgba(0, 0, 0, 0.4);
+    }
+
+    /* Reset and Base Styles */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: var(--font-body);
+      background-color: var(--background);
+      color: var(--text-main);
+      line-height: 1.6;
+      min-height: 100vh;
+      transition: var(--transition);
+      padding: 2rem 1rem;
+    }
+
+    h1, h2, h3, h4 {
+      font-family: var(--font-heading);
+      font-weight: 600;
+      letter-spacing: -0.02em;
+    }
+
+    /* Layout Wrapper */
+    .app-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 2rem;
+    }
+
+    /* Header Section */
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1rem 1.5rem;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      box-shadow: var(--shadow-sm);
+      transition: var(--transition);
+    }
+
+    .logo-area {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .logo-icon {
+      background: var(--gradient-brand);
+      color: white;
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.25rem;
+      box-shadow: 0 4px 10px rgba(var(--primary-rgb), 0.3);
+    }
+
+    .logo-text h1 {
+      font-size: 1.35rem;
+      color: var(--text-main);
+    }
+
+    .logo-text p {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+
+    /* Theme Switcher Button */
+    .btn-icon {
+      background: var(--surface-secondary);
+      border: 1px solid var(--border);
+      color: var(--text-main);
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: var(--transition);
+    }
+
+    .btn-icon:hover {
+      background: var(--border);
+      transform: translateY(-2px);
+    }
+
+    /* Cards & Layout Grid */
+    .grid-panels {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+      gap: 1.5rem;
+    }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      box-shadow: var(--shadow-md);
+      padding: 1.75rem;
+      transition: var(--transition);
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+    }
+
+    .card:hover {
+      box-shadow: var(--shadow-lg);
+      border-color: hsl(var(--hue), 20%, 80%);
+    }
+
+    [data-theme="dark"] .card:hover {
+      border-color: hsl(var(--hue), 15%, 30%);
+    }
+
+    .card-title {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      font-size: 1.15rem;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 0.75rem;
+      color: var(--text-main);
+    }
+
+    .card-title i {
+      color: var(--primary);
+      font-size: 1.2rem;
+    }
+
+    /* Input Fields and Forms */
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+    }
+
+    label {
+      font-size: 0.85rem;
+      font-weight: 500;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+    }
+
+    input, select, textarea {
+      font-family: var(--font-body);
+      font-size: 0.95rem;
+      padding: 0.75rem 0.85rem;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      background-color: var(--surface-secondary);
+      color: var(--text-main);
+      outline: none;
+      transition: var(--transition);
+      width: 100%;
+      min-width: 0;
+      max-width: 100%;
+    }
+
+    input:focus, select:focus, textarea:focus {
+      border-color: var(--primary);
+      background-color: var(--surface);
+      box-shadow: 0 0 0 3px rgba(var(--primary-rgb), 0.15);
+    }
+
+    textarea {
+      resize: vertical;
+      min-height: 80px;
+    }
+
+    /* Shift Details Section (Full Width Panel) */
+    .full-width-panel {
+      grid-column: 1 / -1;
+    }
+
+    .shifts-header {
+      display: flex;
+      justify-between: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    .shifts-actions {
+      display: flex;
+      gap: 0.75rem;
+    }
+
+    /* Custom Styled Buttons */
+    .btn {
+      font-family: var(--font-heading);
+      font-weight: 500;
+      padding: 0.65rem 1.25rem;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      transition: var(--transition);
+      border: 1px solid transparent;
+      font-size: 0.9rem;
+    }
+
+    .btn-primary {
+      background: var(--gradient-brand);
+      color: white;
+      box-shadow: 0 4px 12px rgba(var(--primary-rgb), 0.2);
+    }
+
+    .btn-primary:hover {
+      box-shadow: 0 6px 18px rgba(var(--primary-rgb), 0.35);
+      transform: translateY(-1px);
+    }
+
+    .btn-secondary {
+      background-color: var(--surface-secondary);
+      border-color: var(--border);
+      color: var(--text-main);
+    }
+
+    .btn-secondary:hover {
+      background-color: var(--border);
+    }
+
+    .btn-danger {
+      background-color: transparent;
+      color: var(--error);
+      border: 1px solid transparent;
+    }
+
+    .btn-danger:hover {
+      background-color: hsl(0, 75%, 97%);
+      border-color: var(--error);
+    }
+
+    [data-theme="dark"] .btn-danger:hover {
+      background-color: hsl(0, 50%, 15%);
+    }
+
+    .btn-large {
+      padding: 1rem 2rem;
+      font-size: 1.1rem;
+      border-radius: var(--radius-md);
+      width: 100%;
+    }
+
+    .shifts-mobile-actions {
+      display: none;
+    }
+
+    /* Table Style for Shifts */
+    .table-container {
+      overflow-x: auto;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+    }
+
+    table {
+      width: 100%;
+      min-width: 880px;
+      border-collapse: collapse;
+      text-align: left;
+    }
+
+    th {
+      background-color: var(--surface-secondary);
+      color: var(--text-muted);
+      font-weight: 600;
+      text-transform: uppercase;
+      font-size: 0.75rem;
+      letter-spacing: 0.05em;
+      padding: 0.75rem 0.5rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    td {
+      padding: 0.75rem 0.5rem;
+      border-bottom: 1px solid var(--border);
+      vertical-align: middle;
+    }
+
+    tr:last-child td {
+      border-bottom: none;
+    }
+
+    tr:hover td {
+      background-color: var(--surface-secondary);
+    }
+
+    /* Column Specific Spacing and min-widths (prevents overlap) */
+    .col-date {
+      width: 140px;
+      min-width: 140px;
+    }
+    .col-desc {
+      min-width: 180px;
+    }
+    .col-time {
+      width: 110px;
+      min-width: 110px;
+    }
+    .col-rate {
+      width: 80px;
+      min-width: 80px;
+    }
+    .col-hours {
+      width: 70px;
+      min-width: 70px;
+    }
+    .col-total {
+      width: 90px;
+      min-width: 90px;
+    }
+    .col-delete {
+      width: 50px;
+      min-width: 50px;
+    }
+
+    /* Specific Shift Row Styles */
+    .shift-row input {
+      width: 100%;
+    }
+
+    .readonly-calc {
+      font-weight: 600;
+      color: var(--text-main);
+      font-size: 0.95rem;
+    }
+
+    /* Totals Box and Live Summary Panel */
+    .summary-strip {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1.5rem;
+      background-color: var(--surface-secondary);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 1.5rem;
+    }
+
+    .summary-item {
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+    }
+
+    .summary-item .label {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .summary-item .val {
+      font-size: 1.8rem;
+      font-weight: 700;
+      font-family: var(--font-heading);
+      color: var(--text-main);
+    }
+
+    .summary-item .val.highlight {
+      background: var(--gradient-brand);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    /* Notification & Toast */
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      background-color: var(--surface);
+      color: var(--text-main);
+      border: 1px solid var(--border);
+      padding: 1rem 1.5rem;
+      border-radius: var(--radius-sm);
+      box-shadow: var(--shadow-lg);
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      z-index: 1000;
+      transform: translateY(100px);
+      opacity: 0;
+      transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    .toast.show {
+      transform: translateY(0);
+      opacity: 1;
+    }
+
+    .toast.success i {
+      color: var(--success);
+    }
+
+    .toast-message {
+      font-size: 0.9rem;
+      font-weight: 500;
+    }
+
+    /* Action Area */
+    .actions-container {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .footer-credits {
+      text-align: center;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      margin-top: 1rem;
+    }
+
+    /* Animations */
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .card, header, .summary-strip {
+      animation: fadeIn 0.4s ease-out forwards;
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+      body {
+        padding: 1rem 0.5rem;
+      }
+      .form-row {
+        grid-template-columns: 1fr;
+        gap: 1.25rem;
+      }
+      .shifts-header {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+      .shifts-actions {
+        width: 100%;
+        justify-content: space-between;
+      }
+      
+      .shifts-mobile-actions {
+        display: block;
+        margin-top: 1rem;
+      }
+
+      #btn-add-shift {
+        display: none;
+      }
+      
+      /* Vertical Shift Cards on Mobile */
+      .table-container {
+        border: none;
+        overflow-x: visible;
+      }
+
+      table {
+        min-width: 0 !important;
+      }
+
+      table thead {
+        display: none;
+      }
+
+      table, tbody, tr, td {
+        display: block;
+        width: 100% !important;
+      }
+
+      tr.shift-row {
+        background: var(--surface-secondary);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-md);
+        padding: 1.25rem;
+        margin-bottom: 1.25rem;
+        box-shadow: var(--shadow-sm);
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+        transition: var(--transition);
+      }
+
+      tr.shift-row:hover {
+        border-color: var(--primary);
+        box-shadow: var(--shadow-md);
+      }
+
+      tr.shift-row td {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0.5rem 0;
+        border-bottom: 1px dashed var(--border);
+      }
+
+      tr.shift-row td:last-of-type {
+        border-bottom: none;
+      }
+
+      tr.shift-row td[data-label]::before {
+        content: attr(data-label);
+        font-size: 0.75rem;
+        font-weight: 600;
+        color: var(--text-muted);
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+      }
+
+      /* Align the input or calculation field to the right */
+      tr.shift-row td > input,
+      tr.shift-row td > .time-picker-wrapper,
+      tr.shift-row td > .readonly-calc {
+        max-width: 60%;
+        text-align: right;
+      }
+
+      /* Make text inputs and date inputs align nicely on mobile */
+      tr.shift-row td input[type="text"],
+      tr.shift-row td input[type="number"],
+      tr.shift-row td input[type="date"] {
+        text-align: right;
+        background: transparent;
+        border: none;
+        padding: 4px 0;
+        border-bottom: 1px solid transparent;
+        border-radius: 0;
+      }
+
+      tr.shift-row td input[type="text"]:focus,
+      tr.shift-row td input[type="number"]:focus,
+      tr.shift-row td input[type="date"]:focus {
+        border-bottom: 1px solid var(--primary);
+        box-shadow: none;
+      }
+
+      /* Adjust time-picker layout for mobile */
+      tr.shift-row td .time-picker-wrapper {
+        width: 100%;
+        display: flex;
+        justify-content: flex-end;
+      }
+
+      tr.shift-row td .time-input {
+        width: 100px;
+        text-align: right;
+      }
+
+      tr.shift-row td.col-delete {
+        justify-content: center;
+        padding-top: 0.75rem;
+        border-bottom: none;
+      }
+
+      tr.shift-row td.col-delete .btn-delete-row {
+        width: 100%;
+        justify-content: center;
+        padding: 0.5rem;
+        background-color: hsl(0, 75%, 97%);
+        border: 1px solid var(--error);
+      }
+
+      [data-theme="dark"] tr.shift-row td.col-delete .btn-delete-row {
+        background-color: hsl(0, 50%, 15%);
+      }
+    }
+
+    /* Custom Time Picker (Google Calendar Style) */
+    .time-picker-wrapper {
+      position: relative;
+      width: 95px;
+    }
+
+    .time-input {
+      width: 100%;
+    }
+
+    .time-dropdown-list {
+      position: absolute;
+      width: 150px;
+      max-height: 180px;
+      overflow-y: auto;
+      background-color: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      box-shadow: var(--shadow-lg);
+      z-index: 9999;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .time-dropdown-list.hidden {
+      display: none;
+    }
+
+    .time-dropdown-item {
+      padding: 0.5rem 0.75rem;
+      font-size: 0.85rem;
+      cursor: pointer;
+      color: var(--text-main);
+      transition: var(--transition);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .time-dropdown-item:hover {
+      background-color: var(--surface-secondary);
+      color: var(--primary);
+    }
+
+    .time-dropdown-item .duration-hint {
+      color: var(--text-muted);
+      font-size: 0.75rem;
+      font-weight: 500;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="app-container">
+    
+    <!-- Top Header -->
+    <header>
+      <div class="logo-area">
+        <div class="logo-icon">
+          <i class="fa-solid fa-file-invoice-dollar"></i>
+        </div>
+        <div class="logo-text">
+          <h1>Wage Invoice Generator</h1>
+          <p>Create clean PDF invoices for your work shifts</p>
+        </div>
+      </div>
+      <button id="theme-toggle" class="btn-icon" title="Toggle Dark/Light Mode" aria-label="Toggle dark mode">
+        <i class="fa-solid fa-moon"></i>
+      </button>
+    </header>
+
+    <div class="grid-panels">
+      
+      <!-- Card: User Details -->
+      <section class="card" id="user-details-card">
+        <h2 class="card-title"><i class="fa-solid fa-user"></i>Your Information</h2>
+        
+        <div class="form-group">
+          <label for="your-name">Full Name</label>
+          <input type="text" id="your-name" placeholder="" autocomplete="name">
+        </div>
+        
+        <div class="form-row">
+          <div class="form-group">
+            <label for="your-email">Email</label>
+            <input type="email" id="your-email" placeholder="" autocomplete="email">
+          </div>
+          <div class="form-group">
+            <label for="your-phone">Phone</label>
+            <input type="tel" id="your-phone" placeholder="" autocomplete="tel">
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="default-job">Job Description</label>
+            <input type="text" id="default-job" placeholder="">
+          </div>
+          <div class="form-group">
+            <label for="default-rate">Hourly Rate (£/$)</label>
+            <input type="number" id="default-rate" placeholder="" step="0.01" min="0">
+          </div>
+        </div>
+      </section>
+
+      <!-- Card: Employer Details -->
+      <section class="card" id="employer-details-card">
+        <h2 class="card-title"><i class="fa-solid fa-building"></i>Employer Details</h2>
+        
+        <div class="form-group">
+          <label for="employer-company">Company Name</label>
+          <input type="text" id="employer-company" placeholder="">
+        </div>
+
+        <div class="form-group">
+          <label for="employer-name">Contact Person (Optional)</label>
+          <input type="text" id="employer-name" placeholder="">
+        </div>
+
+        <div class="form-group">
+          <label for="employer-address">Company Address / Billing Info</label>
+          <textarea id="employer-address" placeholder=""></textarea>
+        </div>
+      </section>
+
+      <!-- Card: Bank Details -->
+      <section class="card" id="bank-details-card">
+        <h2 class="card-title"><i class="fa-solid fa-credit-card"></i>Bank Details (Saved Locally)</h2>
+        
+        <div class="form-group">
+          <label for="bank-name">Bank Name</label>
+          <input type="text" id="bank-name" placeholder="">
+        </div>
+
+        <div class="form-group">
+          <label for="bank-account-name">Account Holder Name</label>
+          <input type="text" id="bank-account-name" placeholder="">
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="bank-account-num">Account Number</label>
+            <input type="text" id="bank-account-num" placeholder="" pattern="[0-9]*" inputmode="numeric">
+          </div>
+          <div class="form-group">
+            <label for="bank-sort-code">Sort Code</label>
+            <input type="text" id="bank-sort-code" placeholder="">
+          </div>
+        </div>
+        <p style="font-size:0.75rem; color:var(--text-muted); margin-top:-0.5rem;"><i class="fa-solid fa-shield-halved"></i> Sensitive bank details are saved locally in your browser cache only.</p>
+      </section>
+
+      <!-- Card: Invoice Info -->
+      <section class="card" id="invoice-details-card">
+        <h2 class="card-title"><i class="fa-solid fa-circle-info"></i>Invoice Metadata</h2>
+        
+        <div class="form-row">
+          <div class="form-group">
+            <label for="invoice-num">Invoice Number</label>
+            <input type="text" id="invoice-num" placeholder="">
+          </div>
+          <div class="form-group">
+            <label for="invoice-date">Invoice Date</label>
+            <input type="date" id="invoice-date">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="week-ending-date">Week Ending Date</label>
+          <input type="date" id="week-ending-date">
+        </div>
+      </section>
+
+      <!-- Card: Shift Details (Full Width) -->
+      <section class="card full-width-panel" id="shifts-card">
+        <div class="shifts-header">
+          <h2 class="card-title" style="border:none; padding:0; margin:0;"><i class="fa-solid fa-calendar-days"></i>Shifts Logged</h2>
+          <div class="shifts-actions">
+            <button id="btn-fill-week" class="btn btn-secondary" type="button"><i class="fa-solid fa-magic"></i> Autofill Week</button>
+            <button id="btn-clear-shifts" class="btn btn-secondary" type="button"><i class="fa-solid fa-trash-can"></i> Clear All</button>
+            <button id="btn-add-shift" class="btn btn-primary" type="button"><i class="fa-solid fa-plus"></i> Add Row</button>
+          </div>
+        </div>
+
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th class="col-date">Date</th>
+                <th class="col-desc">Job Description</th>
+                <th class="col-time">Start Time</th>
+                <th class="col-time">End Time</th>
+                <th class="col-rate">Rate (£/hr)</th>
+                <th class="col-hours">Hours</th>
+                <th class="col-total">Total (£)</th>
+                <th class="col-delete"></th>
+              </tr>
+            </thead>
+            <tbody id="shifts-tbody">
+              <!-- Dynamically populated rows -->
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Action below table on mobile -->
+        <div class="shifts-mobile-actions">
+          <button id="btn-add-shift-mobile" class="btn btn-primary" type="button" style="width: 100%; justify-content: center; padding: 0.75rem;"><i class="fa-solid fa-plus"></i> Add Row</button>
+        </div>
+      </section>
+
+      <!-- Live Summary & Generate Button (Full Width) -->
+      <section class="card full-width-panel" style="background: var(--surface); border: 2px solid var(--primary);">
+        <div class="summary-strip">
+          <div class="summary-item">
+            <span class="label">Total Hours Worked</span>
+            <span id="live-total-hours" class="val">0.00 hrs</span>
+          </div>
+          <div class="summary-item">
+            <span class="label">Average Hourly Rate</span>
+            <span id="live-avg-rate" class="val">£0.00</span>
+          </div>
+          <div class="summary-item">
+            <span class="label">Total Wage Request</span>
+            <span id="live-gross-amount" class="val highlight">£0.00</span>
+          </div>
+        </div>
+
+        <div class="actions-container">
+          <button id="btn-download-pdf" class="btn btn-primary btn-large" type="button">
+            <i class="fa-solid fa-file-pdf"></i> Generate & Download Invoice PDF (.pdf)
+          </button>
+        </div>
+      </section>
+
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="toast success">
+      <i class="fa-solid fa-circle-check"></i>
+      <span id="toast-msg" class="toast-message">Invoice details saved.</span>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+      <p class="footer-credits">&copy; 2026 Shift Invoice Generator. Runs entirely in your browser.</p>
+    </footer>
+
+  </div>
+
+  <!-- Inline App JavaScript -->
+  <script>
+    // DOM Elements
+    const themeToggle = document.getElementById('theme-toggle');
+    const btnAddShift = document.getElementById('btn-add-shift');
+    const btnClearShifts = document.getElementById('btn-clear-shifts');
+    const btnFillWeek = document.getElementById('btn-fill-week');
+    const btnDownloadPdf = document.getElementById('btn-download-pdf');
+    const shiftsTbody = document.getElementById('shifts-tbody');
+
+    // Live calculation elements
+    const liveTotalHours = document.getElementById('live-total-hours');
+    const liveAvgRate = document.getElementById('live-avg-rate');
+    const liveGrossAmount = document.getElementById('live-gross-amount');
+
+    // Input fields to persist
+    const inputsToPersist = [
+      'your-name', 'your-email', 'your-phone', 'default-job', 'default-rate',
+      'employer-company', 'employer-name', 'employer-address',
+      'bank-name', 'bank-account-name', 'bank-account-num', 'bank-sort-code',
+      'invoice-num', 'invoice-date', 'week-ending-date'
+    ];
+
+    // App Init
+    document.addEventListener('DOMContentLoaded', () => {
+      initTheme();
+      initFormPersistence();
+      initDates();
+      loadSavedShifts();
+    });
+
+    // ==========================================
+    // 1. Theme Management (Light / Dark)
+    // ==========================================
+    function initTheme() {
+      const savedTheme = localStorage.getItem('sig_theme') || 'light';
+      document.documentElement.setAttribute('data-theme', savedTheme);
+      updateThemeIcon(savedTheme);
+
+      themeToggle.addEventListener('click', () => {
+        const currentTheme = document.documentElement.getAttribute('data-theme');
+        const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+        document.documentElement.setAttribute('data-theme', newTheme);
+        localStorage.setItem('sig_theme', newTheme);
+        updateThemeIcon(newTheme);
+        showToast(`Switched to ${newTheme} mode`);
+      });
+    }
+
+    function updateThemeIcon(theme) {
+      const icon = themeToggle.querySelector('i');
+      if (theme === 'dark') {
+        icon.className = 'fa-solid fa-sun';
+      } else {
+        icon.className = 'fa-solid fa-moon';
+      }
+    }
+
+    // ==========================================
+    // 2. Data Persistence (localStorage)
+    // ==========================================
+    function initFormPersistence() {
+      // Load saved values
+      inputsToPersist.forEach(id => {
+        const savedValue = localStorage.getItem(`sig_${id}`);
+        const input = document.getElementById(id);
+        if (input && savedValue !== null) {
+          input.value = savedValue;
+        }
+      });
+
+      // Attach change/input listeners for auto-save
+      inputsToPersist.forEach(id => {
+        const input = document.getElementById(id);
+        if (input) {
+          input.addEventListener('input', () => {
+            localStorage.setItem(`sig_${id}`, input.value);
+            if (id === 'default-rate' || id === 'default-job') {
+              recalculateAll();
+            }
+          });
+        }
+      });
+    }
+
+    function initDates() {
+      const invoiceDateInput = document.getElementById('invoice-date');
+      const weekEndingInput = document.getElementById('week-ending-date');
+      
+      const todayStr = new Date().toISOString().split('T')[0];
+      
+      if (invoiceDateInput && !invoiceDateInput.value) {
+        invoiceDateInput.value = todayStr;
+        localStorage.setItem('sig_invoice-date', todayStr);
+      }
+      
+      if (weekEndingInput && !weekEndingInput.value) {
+        const upcomingSundayStr = getUpcomingSunday().toISOString().split('T')[0];
+        weekEndingInput.value = upcomingSundayStr;
+        localStorage.setItem('sig_week-ending-date', upcomingSundayStr);
+      }
+    }
+
+    function getUpcomingSunday(baseDate = new Date()) {
+      const day = baseDate.getDay();
+      const diff = 7 - (day === 0 ? 7 : day); // Days to add until Sunday
+      const sunday = new Date(baseDate);
+      sunday.setDate(baseDate.getDate() + (day === 0 ? 0 : diff));
+      return sunday;
+    }
+
+    // ==========================================
+    // 3. Shift Management Logic
+    // ==========================================
+    function createShiftRow(shiftData = {}) {
+      const tr = document.createElement('tr');
+      tr.className = 'shift-row';
+
+      const defaultDate = shiftData.date || getSuggestedNextDate();
+      const defaultDesc = shiftData.desc || document.getElementById('default-job').value || '';
+      const defaultStart = shiftData.start || '10:00';
+      const defaultEnd = shiftData.end || '17:00';
+      const defaultRate = shiftData.rate !== undefined ? shiftData.rate : document.getElementById('default-rate').value || '';
+
+      tr.innerHTML = `
+        <td class="col-date" data-label="Date"><input type="date" class="shift-date" value="${defaultDate}"></td>
+        <td class="col-desc" data-label="Description"><input type="text" class="shift-desc" value="${defaultDesc}" placeholder=""></td>
+        <td class="col-time" data-label="Start Time">
+          <div class="time-picker-wrapper">
+            <input type="text" class="time-input shift-start" value="${defaultStart}">
+          </div>
+        </td>
+        <td class="col-time" data-label="End Time">
+          <div class="time-picker-wrapper">
+            <input type="text" class="time-input shift-end" value="${defaultEnd}">
+          </div>
+        </td>
+        <td class="col-rate" data-label="Rate (£/hr)"><input type="number" class="shift-rate" value="${defaultRate}" min="0" step="0.01" placeholder=""></td>
+        <td class="col-hours" data-label="Hours"><span class="readonly-calc shift-hours">0.00</span></td>
+        <td class="col-total" data-label="Total (£)"><span class="readonly-calc shift-total">£0.00</span></td>
+        <td class="col-delete">
+          <button class="btn btn-danger btn-delete-row" title="Delete Row" type="button">
+            <i class="fa-solid fa-trash-can"></i>
+          </button>
+        </td>
+      `;
+
+      // Attach delete behavior
+      tr.querySelector('.btn-delete-row').addEventListener('click', () => {
+        tr.remove();
+        recalculateAll();
+        saveAllShifts();
+        showToast("Shift row removed");
+      });
+
+      shiftsTbody.appendChild(tr);
+      initTimePicker(tr);
+      recalculateRow(tr);
+    }
+
+    function getSuggestedNextDate() {
+      const rows = shiftsTbody.querySelectorAll('.shift-row');
+      if (rows.length > 0) {
+        const lastRowDateVal = rows[rows.length - 1].querySelector('.shift-date').value;
+        if (lastRowDateVal) {
+          const date = new Date(lastRowDateVal);
+          date.setDate(date.getDate() + 1);
+          return date.toISOString().split('T')[0];
+        }
+      }
+      return new Date().toISOString().split('T')[0];
+    }
+
+    function recalculateRow(row) {
+      const startVal = row.querySelector('.shift-start').value.trim();
+      const endVal = row.querySelector('.shift-end').value.trim();
+      const rateVal = parseFloat(row.querySelector('.shift-rate').value) || 0;
+
+      let hours = 0;
+
+      if (startVal && endVal && startVal.includes(':') && endVal.includes(':')) {
+        const [startH, startM] = startVal.split(':').map(Number);
+        const [endH, endM] = endVal.split(':').map(Number);
+
+        if (!isNaN(startH) && !isNaN(startM) && !isNaN(endH) && !isNaN(endM)) {
+          let startMins = startH * 60 + startM;
+          let endMins = endH * 60 + endM;
+
+          if (endMins < startMins) {
+            endMins += 24 * 60;
+          }
+
+          const workedMins = endMins - startMins;
+          hours = Math.max(0, workedMins / 60);
+        }
+      }
+
+      const shiftTotal = hours * rateVal;
+
+      row.querySelector('.shift-hours').textContent = hours.toFixed(2);
+      row.querySelector('.shift-total').textContent = `£${shiftTotal.toFixed(2)}`;
+    }
+
+    function recalculateAll() {
+      const rows = shiftsTbody.querySelectorAll('.shift-row');
+      let totalHours = 0;
+      let totalPay = 0;
+      let ratesSum = 0;
+      let validRatesCount = 0;
+
+      rows.forEach(row => {
+        recalculateRow(row);
+        const hours = parseFloat(row.querySelector('.shift-hours').textContent) || 0;
+        const total = parseFloat(row.querySelector('.shift-total').textContent.replace('£', '')) || 0;
+        const rate = parseFloat(row.querySelector('.shift-rate').value) || 0;
+
+        totalHours += hours;
+        totalPay += total;
+        
+        if (rate > 0) {
+          ratesSum += rate;
+          validRatesCount++;
+        }
+      });
+
+      const avgRate = validRatesCount > 0 ? (ratesSum / validRatesCount) : 0;
+
+      liveTotalHours.textContent = `${totalHours.toFixed(2)} hrs`;
+      liveAvgRate.textContent = `£${avgRate.toFixed(2)}`;
+      liveGrossAmount.textContent = `£${totalPay.toFixed(2)}`;
+    }
+
+    function saveAllShifts() {
+      const rows = shiftsTbody.querySelectorAll('.shift-row');
+      const shifts = [];
+      rows.forEach(row => {
+        shifts.push({
+          date: row.querySelector('.shift-date').value,
+          desc: row.querySelector('.shift-desc').value,
+          start: row.querySelector('.shift-start').value,
+          end: row.querySelector('.shift-end').value,
+          break: 0,
+          rate: parseFloat(row.querySelector('.shift-rate').value) || 0
+        });
+      });
+      localStorage.setItem('sig_shifts', JSON.stringify(shifts));
+    }
+
+    function loadSavedShifts() {
+      const savedShiftsJson = localStorage.getItem('sig_shifts');
+      if (savedShiftsJson) {
+        try {
+          const shifts = JSON.parse(savedShiftsJson);
+          if (shifts.length > 0) {
+            shifts.forEach(shift => createShiftRow(shift));
+            recalculateAll();
+            return;
+          }
+        } catch (e) {
+          console.error("Error loading shifts:", e);
+        }
+      }
+      
+      createShiftRow();
+      recalculateAll();
+    }
+
+    // Button Events
+    const handleAddShift = () => {
+      createShiftRow();
+      recalculateAll();
+      saveAllShifts();
+    };
+
+    btnAddShift.addEventListener('click', handleAddShift);
+    document.getElementById('btn-add-shift-mobile')?.addEventListener('click', handleAddShift);
+
+    btnClearShifts.addEventListener('click', () => {
+      if (confirm("Are you sure you want to clear all shift rows?")) {
+        shiftsTbody.innerHTML = '';
+        createShiftRow();
+        recalculateAll();
+        saveAllShifts();
+        showToast("Cleared all shifts");
+      }
+    });
+
+    btnFillWeek.addEventListener('click', () => {
+      const weekEndingVal = document.getElementById('week-ending-date').value;
+      if (!weekEndingVal) {
+        alert("Please select a Week Ending Date first.");
+        document.getElementById('week-ending-date').focus();
+        return;
+      }
+
+      // Clear existing
+      shiftsTbody.innerHTML = '';
+
+      const weekEnd = new Date(weekEndingVal);
+      const days = [
+        { name: 'Monday', offset: -6 },
+        { name: 'Tuesday', offset: -5 },
+        { name: 'Wednesday', offset: -4 },
+        { name: 'Thursday', offset: -3 },
+        { name: 'Friday', offset: -2 }
+      ];
+
+      const defaultJob = document.getElementById('default-job').value || '';
+      const defaultRate = parseFloat(document.getElementById('default-rate').value) || 0;
+
+      days.forEach(day => {
+        const shiftDate = new Date(weekEnd);
+        shiftDate.setDate(weekEnd.getDate() + day.offset);
+        const dateStr = shiftDate.toISOString().split('T')[0];
+
+        createShiftRow({
+          date: dateStr,
+          desc: defaultJob,
+          start: '10:00',
+          end: '17:00',
+          break: 0,
+          rate: defaultRate
+        });
+      });
+
+      recalculateAll();
+      saveAllShifts();
+      showToast("Autofilled standard Monday-Friday shifts!");
+    });
+
+    // Event Delegation for shift table calculations
+    shiftsTbody.addEventListener('input', (e) => {
+      if (e.target.matches('input')) {
+        const row = e.target.closest('tr');
+        recalculateRow(row);
+        recalculateAll();
+        saveAllShifts();
+      }
+    });
+
+    // ==========================================
+    // 4. Toast Notifications
+    // ==========================================
+    function showToast(message) {
+      const toast = document.getElementById('toast');
+      const toastMsg = document.getElementById('toast-msg');
+      toastMsg.textContent = message;
+      toast.classList.add('show');
+      
+      if (window.toastTimeout) {
+        clearTimeout(window.toastTimeout);
+      }
+      
+      window.toastTimeout = setTimeout(() => {
+        toast.classList.remove('show');
+      }, 3000);
+    }
+
+    // ==========================================
+    // 5. PDF Generation & Formatting
+    // ==========================================
+    async function generatePdf() {
+      // Validate Form Inputs
+      const yourName = document.getElementById('your-name').value.trim();
+      const bankName = document.getElementById('bank-name').value.trim();
+      const bankAccNum = document.getElementById('bank-account-num').value.trim();
+      const bankSortCode = document.getElementById('bank-sort-code').value.trim();
+      
+      const shiftRows = shiftsTbody.querySelectorAll('.shift-row');
+      
+      // Check if hourly wage details are provided (any rate > 0)
+      let hasWages = false;
+      shiftRows.forEach(row => {
+        const rateVal = parseFloat(row.querySelector('.shift-rate').value) || 0;
+        if (rateVal > 0) {
+          hasWages = true;
+        }
+      });
+
+      let validationErrors = [];
+      if (!yourName) validationErrors.push("Your Name");
+      
+      // Bank details are only required if there are wages
+      if (hasWages) {
+        if (!bankName || !bankAccNum || !bankSortCode) {
+          validationErrors.push("Bank Details (Required when hourly rates are specified)");
+        }
+      }
+      
+      if (shiftRows.length === 0) {
+        validationErrors.push("At least one shift row");
+      }
+
+      if (validationErrors.length > 0) {
+        alert(`Please complete the following details before downloading:\n• ${validationErrors.join('\n• ')}`);
+        return;
+      }
+
+      // Fetch all form data
+      const yourEmail = document.getElementById('your-email').value.trim();
+      const yourPhone = document.getElementById('your-phone').value.trim();
+      const defaultJob = document.getElementById('default-job').value.trim() || (hasWages ? "Hourly Work" : "Work Shifts");
+      
+      const empCompany = document.getElementById('employer-company').value.trim() || "Employer";
+      const empName = document.getElementById('employer-name').value.trim();
+      const empAddress = document.getElementById('employer-address').value.trim();
+      
+      const bankAccName = document.getElementById('bank-account-name').value.trim() || yourName;
+      
+      const invNum = document.getElementById('invoice-num').value.trim() || "INV-001";
+      const invDate = formatDate(document.getElementById('invoice-date').value);
+      const weekEnding = formatDate(document.getElementById('week-ending-date').value);
+
+      // Recalculate totals
+      let grandTotalHours = 0;
+      let grandTotalPay = 0;
+      
+      const shiftDataRows = [];
+      
+      shiftRows.forEach((row, index) => {
+        const rawDate = row.querySelector('.shift-date').value;
+        const formattedDate = formatDate(rawDate);
+        const desc = row.querySelector('.shift-desc').value.trim() || defaultJob;
+        const start = row.querySelector('.shift-start').value;
+        const end = row.querySelector('.shift-end').value;
+        const rate = parseFloat(row.querySelector('.shift-rate').value) || 0;
+        const hours = parseFloat(row.querySelector('.shift-hours').textContent) || 0;
+        const total = parseFloat(row.querySelector('.shift-total').textContent.replace('£', '')) || 0;
+
+        grandTotalHours += hours;
+        grandTotalPay += total;
+
+        const timeText = (start && end) ? `${start} - ${end}` : "N/A";
+
+        if (hasWages) {
+          shiftDataRows.push([
+            { text: formattedDate, style: 'tableCell' },
+            { text: desc, style: 'tableCell' },
+            { text: timeText, style: 'tableCell' },
+            { text: `£${rate.toFixed(2)}`, style: 'tableCell' },
+            { text: hours.toFixed(2), style: 'tableCell' },
+            { text: `£${total.toFixed(2)}`, style: 'tableCell' }
+          ]);
+        } else {
+          shiftDataRows.push([
+            { text: formattedDate, style: 'tableCell' },
+            { text: desc, style: 'tableCell' },
+            { text: timeText, style: 'tableCell' },
+            { text: hours.toFixed(2), style: 'tableCell' }
+          ]);
+        }
+      });
+
+      // 5. Shifts Table
+      const shiftsTable = {
+        table: {
+          headerRows: 1,
+          widths: hasWages ? ['15%', '35%', '20%', '10%', '10%', '10%'] : ['15%', '50%', '20%', '15%'],
+          body: [
+            // Table Header Row
+            hasWages ? [
+              { text: 'Date', style: 'tableHeader' },
+              { text: 'Description', style: 'tableHeader' },
+              { text: 'Times', style: 'tableHeader' },
+              { text: 'Rate', style: 'tableHeader' },
+              { text: 'Hours', style: 'tableHeader' },
+              { text: 'Total', style: 'tableHeader' }
+            ] : [
+              { text: 'Date', style: 'tableHeader' },
+              { text: 'Description', style: 'tableHeader' },
+              { text: 'Times', style: 'tableHeader' },
+              { text: 'Hours', style: 'tableHeader' }
+            ],
+            ...shiftDataRows
+          ]
+        },
+        layout: {
+          hLineWidth: function (i, node) {
+            return (i === 0 || i === node.table.body.length) ? 0 : 0.5;
+          },
+          vLineWidth: function (i, node) { return 0; },
+          hLineColor: function (i, node) { return '#E5E7EB'; },
+          fillColor: function (rowIndex, node, columnIndex) {
+            if (rowIndex === 0) return '#1E3A8A';
+            return (rowIndex % 2 === 0) ? '#F8FAFC' : null;
+          }
+        }
+      };
+
+      // 6. Totals Box (Right-aligned)
+      const totalsBoxTableBody = hasWages ? [
+        [
+          { text: 'Total Hours:', fontSize: 9, color: '#4B5563', margin: [0, 4, 0, 4] },
+          { text: `${grandTotalHours.toFixed(2)} hrs`, fontSize: 9, bold: true, alignment: 'right', margin: [0, 4, 0, 4] }
+        ],
+        [
+          { text: 'TOTAL DUE:', fontSize: 11, bold: true, color: '#1E3A8A', fillColor: '#EFF6FF', margin: [4, 6, 4, 6] },
+          { text: `£${grandTotalPay.toFixed(2)}`, fontSize: 11, bold: true, color: '#2563EB', alignment: 'right', fillColor: '#EFF6FF', margin: [4, 6, 4, 6] }
+        ]
+      ] : [
+        [
+          { text: 'Total Hours:', fontSize: 11, bold: true, color: '#1E3A8A', fillColor: '#EFF6FF', margin: [4, 6, 4, 6] },
+          { text: `${grandTotalHours.toFixed(2)} hrs`, fontSize: 11, bold: true, color: '#2563EB', alignment: 'right', fillColor: '#EFF6FF', margin: [4, 6, 4, 6] }
+        ]
+      ];
+
+      const totalsBox = {
+        columns: [
+          { width: '*', text: '' }, // spacer
+          {
+            width: 200,
+            table: {
+              widths: ['50%', '50%'],
+              body: totalsBoxTableBody
+            },
+            layout: {
+              hLineWidth: function (i, node) {
+                return (hasWages && i === 1) ? 1 : 0;
+              },
+              vLineWidth: function (i, node) { return 0; },
+              hLineColor: function (i, node) { return '#2563EB'; }
+            },
+            margin: [0, 10, 0, 20]
+          }
+        ]
+      };
+
+      // Define PDF Document Schema
+      const docDefinition = {
+        pageMargins: [40, 50, 40, 50],
+        content: [
+          // 1. Header (Name/Title on Left, INVOICE info on Right)
+          {
+            columns: [
+              {
+                stack: [
+                  { text: yourName, fontSize: 22, bold: true, color: '#1E3A8A', margin: [0, 0, 0, 4] },
+                  { text: defaultJob, fontSize: 11, bold: true, color: '#4B5563', margin: [0, 0, 0, 10] },
+                  { text: `Email: ${yourEmail || 'N/A'}    |    Phone: ${yourPhone || 'N/A'}`, fontSize: 8.5, color: '#6B7280' }
+                ],
+                width: '60%'
+              },
+              {
+                stack: [
+                  { text: hasWages ? 'INVOICE' : 'TIMESHEET', fontSize: 24, bold: true, color: '#2563EB', margin: [0, 0, 0, 8] },
+                  { text: `Invoice #: ${invNum}`, fontSize: 9, bold: true, color: '#4B5563', margin: [0, 0, 0, 3] },
+                  { text: `Date: ${invDate}`, fontSize: 9, color: '#4B5563', margin: [0, 0, 0, 3] },
+                  { text: `Week Ending: ${weekEnding || 'N/A'}`, fontSize: 9, bold: true, color: '#4B5563' }
+                ],
+                alignment: 'right',
+                width: '40%'
+              }
+            ]
+          },
+          
+          // 2. Horizontal Colored Accent Line
+          {
+            canvas: [
+              {
+                type: 'rect',
+                x: 0,
+                y: 0,
+                w: 515,
+                h: 3,
+                color: '#2563EB'
+              }
+            ],
+            margin: [0, 15, 0, 15]
+          },
+          
+          // 3. Billing Address Card
+          {
+            stack: [
+              { text: 'PREPARED FOR:', fontSize: 8.5, bold: true, color: '#2563EB', margin: [0, 0, 0, 4] },
+              { text: empCompany, fontSize: 12, bold: true, color: '#1E3A8A', margin: [0, 0, 0, 4] },
+              empName ? { text: `Attn: ${empName}`, fontSize: 9, margin: [0, 0, 0, 2] } : null,
+              empAddress ? { text: empAddress, fontSize: 9, color: '#4B5563', lineHeight: 1.2 } : null
+            ].filter(Boolean),
+            margin: [0, 0, 0, 20]
+          },
+          
+          // 4. Shifts Heading
+          {
+            text: hasWages ? 'SHIFT LOG & WAGES BREAKDOWN' : 'SHIFT LOG & HOURS WORKED',
+            fontSize: 10,
+            bold: true,
+            color: '#1E3A8A',
+            margin: [0, 0, 0, 8]
+          },
+          
+          // 5. Shifts Table
+          shiftsTable,
+          
+          // 6. Totals Box (Right-aligned)
+          totalsBox
+        ],
+        styles: {
+          tableHeader: {
+            bold: true,
+            fontSize: 9,
+            color: 'white',
+            margin: [4, 6, 4, 6]
+          },
+          tableCell: {
+            fontSize: 9,
+            color: '#1F2937',
+            margin: [4, 6, 4, 6]
+          }
+        }
+      };
+
+      // 7. Bank Details Callout Card (Optional: only if bank details are entered)
+      const hasBankDetails = bankName || bankAccNum || bankSortCode;
+      if (hasBankDetails) {
+        docDefinition.content.push({
+          table: {
+            widths: ['100%'],
+            body: [
+              [
+                {
+                  stack: [
+                    { text: 'BANK PAYMENT DETAILS', fontSize: 10, bold: true, color: '#1E3A8A', margin: [0, 0, 0, 6] },
+                    {
+                      table: {
+                        widths: ['30%', '70%'],
+                        body: [
+                          bankName ? [
+                            { text: 'Bank Name:', bold: true, fontSize: 9, color: '#4B5563', margin: [0, 2, 0, 2] },
+                            { text: bankName, fontSize: 9, margin: [0, 2, 0, 2] }
+                          ] : null,
+                          bankAccName ? [
+                            { text: 'Account Name:', bold: true, fontSize: 9, color: '#4B5563', margin: [0, 2, 0, 2] },
+                            { text: bankAccName, fontSize: 9, margin: [0, 2, 0, 2] }
+                          ] : null,
+                          bankAccNum ? [
+                            { text: 'Account Number:', bold: true, fontSize: 9, color: '#4B5563', margin: [0, 2, 0, 2] },
+                            { text: bankAccNum, fontSize: 9, margin: [0, 2, 0, 2] }
+                          ] : null,
+                          bankSortCode ? [
+                            { text: 'Sort Code:', bold: true, fontSize: 9, color: '#4B5563', margin: [0, 2, 0, 2] },
+                            { text: bankSortCode, fontSize: 9, margin: [0, 2, 0, 2] }
+                          ] : null
+                        ].filter(Boolean)
+                      },
+                      layout: 'noBorders'
+                    }
+                  ],
+                  fillColor: '#F8FAFC',
+                  margin: [12, 10, 12, 10]
+                }
+              ]
+            ]
+          },
+          layout: {
+            hLineWidth: function (i, node) { return 0; },
+            vLineWidth: function (i, node) { return (i === 0) ? 4 : 0; }, // 4pt left accent line
+            vLineColor: function (i, node) { return '#2563EB'; }
+          },
+          margin: [0, 15, 0, 30]
+        });
+      }
+
+      // 8. Footer Message
+      docDefinition.content.push({
+        text: 'Thank you!',
+        alignment: 'center',
+        fontSize: 10,
+        color: '#6B7280',
+        margin: [0, 10, 0, 0]
+      });
+
+      // Generate and Download
+      try {
+        const cleanDate = weekEnding ? weekEnding.replace(/[\s,]+/g, '_') : 'Invoice';
+        const cleanName = yourName.replace(/\s+/g, '_');
+        const filePrefix = hasWages ? 'Invoice' : 'Timesheet';
+        const fileName = `${filePrefix}_${cleanDate}_${cleanName}.pdf`;
+        
+        pdfMake.createPdf(docDefinition).download(fileName);
+        showToast("PDF downloaded successfully!");
+      } catch (error) {
+        console.error("Error generating pdf:", error);
+        alert("An error occurred while generating the PDF. Please check console details.");
+      }
+    }
+
+    btnDownloadPdf.addEventListener('click', generatePdf);
+
+    // ==========================================
+    // 6. Utility Functions
+    // ==========================================
+    function formatDate(dateStr) {
+      if (!dateStr) return '';
+      const date = new Date(dateStr);
+      if (isNaN(date)) return dateStr;
+      
+      // Format: "Fri, 19 Jun 2026"
+      const options = { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' };
+      return date.toLocaleDateString('en-GB', options);
+    }
+
+    // ==========================================
+    // 7. Time Picker Custom Dropdown Helpers (Google Calendar UI)
+    // ==========================================
+    let activeTimeInput = null;
+    const globalTimeDropdown = document.createElement('div');
+    globalTimeDropdown.className = 'time-dropdown-list hidden';
+    document.body.appendChild(globalTimeDropdown);
+
+    function initTimePicker(row) {
+      const startInput = row.querySelector('.shift-start');
+      const endInput = row.querySelector('.shift-end');
+      
+      setupInputDropdown(startInput, () => generateStartOptions());
+      setupInputDropdown(endInput, () => generateEndOptions(startInput.value));
+    }
+
+    function setupInputDropdown(input, getOptionsFn) {
+      // Show dropdown on focus
+      input.addEventListener('focus', () => {
+        activeTimeInput = input;
+        populateDropdown(input, globalTimeDropdown, getOptionsFn());
+        positionDropdown(input);
+        globalTimeDropdown.classList.remove('hidden');
+      });
+      
+      // Filter options on input typing
+      input.addEventListener('input', () => {
+        const filterText = input.value.toLowerCase().trim();
+        const options = getOptionsFn();
+        const filtered = options.filter(opt => opt.time.includes(filterText));
+        activeTimeInput = input;
+        populateDropdown(input, globalTimeDropdown, filtered);
+        positionDropdown(input);
+        globalTimeDropdown.classList.remove('hidden');
+      });
+    }
+
+    function positionDropdown(input) {
+      const rect = input.getBoundingClientRect();
+      globalTimeDropdown.style.top = `${rect.bottom + window.scrollY + 4}px`;
+      globalTimeDropdown.style.left = `${rect.left + window.scrollX}px`;
+      globalTimeDropdown.style.width = `${Math.max(150, rect.width)}px`;
+    }
+
+    function populateDropdown(input, dropdown, options) {
+      dropdown.innerHTML = '';
+      if (options.length === 0) {
+        const noResults = document.createElement('div');
+        noResults.className = 'time-dropdown-item';
+        noResults.style.color = 'var(--text-muted)';
+        noResults.style.cursor = 'default';
+        noResults.textContent = 'No options';
+        dropdown.appendChild(noResults);
+        return;
+      }
+      
+      options.forEach(opt => {
+        const item = document.createElement('div');
+        item.className = 'time-dropdown-item';
+        
+        const timeSpan = document.createElement('span');
+        timeSpan.textContent = opt.time;
+        item.appendChild(timeSpan);
+        
+        if (opt.duration) {
+          const durSpan = document.createElement('span');
+          durSpan.className = 'duration-hint';
+          durSpan.textContent = opt.duration;
+          item.appendChild(durSpan);
+        }
+        
+        item.addEventListener('mousedown', (e) => {
+          e.preventDefault(); // Prevent input from losing focus immediately
+          input.value = opt.time;
+          closeAllDropdowns();
+          
+          const row = input.closest('tr');
+          recalculateRow(row);
+          recalculateAll();
+          saveAllShifts();
+        });
+        
+        dropdown.appendChild(item);
+      });
+    }
+
+    function generateStartOptions() {
+      const options = [];
+      for (let h = 0; h < 24; h++) {
+        for (let m = 0; m < 60; m += 10) {
+          const hh = String(h).padStart(2, '0');
+          const mm = String(m).padStart(2, '0');
+          options.push({ time: `${hh}:${mm}` });
+        }
+      }
+      return options;
+    }
+
+    function generateEndOptions(startTimeVal) {
+      const options = [];
+      let startMins = 0;
+      let hasStart = false;
+      
+      if (startTimeVal && startTimeVal.includes(':')) {
+        const [startH, startM] = startTimeVal.split(':').map(Number);
+        if (!isNaN(startH) && !isNaN(startM)) {
+          startMins = startH * 60 + startM;
+          hasStart = true;
+        }
+      }
+      
+      // Generate suggestions relative to start time
+      for (let offset = 10; offset <= 24 * 60; offset += 10) {
+        const totalMins = (hasStart ? startMins + offset : offset) % (24 * 60);
+        const h = Math.floor(totalMins / 60);
+        const m = totalMins % 60;
+        const hh = String(h).padStart(2, '0');
+        const mm = String(m).padStart(2, '0');
+        
+        options.push({
+          time: `${hh}:${mm}`
+        });
+      }
+      return options;
+    }
+
+    function closeAllDropdowns() {
+      globalTimeDropdown.classList.add('hidden');
+      activeTimeInput = null;
+    }
+
+    // Global click outside to close dropdowns
+    document.addEventListener('click', (e) => {
+      if (activeTimeInput && !activeTimeInput.contains(e.target) && !globalTimeDropdown.contains(e.target)) {
+        closeAllDropdowns();
+      }
+    });
+
+    // Close dropdown on window resize or page scroll to avoid positioning disconnects
+    window.addEventListener('resize', closeAllDropdowns);
+    document.addEventListener('scroll', (e) => {
+      if (globalTimeDropdown.contains(e.target)) return;
+      closeAllDropdowns();
+    }, { capture: true, passive: true });
+
+    // Register Service Worker for PWA installation (requires HTTPS/localhost)
+    if ('serviceWorker' in navigator && (window.location.protocol === 'https:' || window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('sw.js')
+          .then(reg => console.log('Service Worker registered:', reg.scope))
+          .catch(err => console.error('Service Worker registration failed:', err));
+      });
+    }
+  </script>
+</body>
+</html>

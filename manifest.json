@@ -1,6 +1,6 @@
 {
-  "name": "Shift Invoice Generator",
-  "short_name": "ShiftInvoice",
+  "name": "Invoicer",
+  "short_name": "Invoicer",
   "description": "Generate clean, modern wage invoice and timesheet PDFs completely offline.",
   "start_url": "index.html",
   "display": "standalone",

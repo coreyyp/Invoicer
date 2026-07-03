@@ -1581,11 +1581,18 @@
       }
     }
 
+    function getLocalDateString(date = new Date()) {
+      const yyyy = date.getFullYear();
+      const mm = String(date.getMonth() + 1).padStart(2, '0');
+      const dd = String(date.getDate()).padStart(2, '0');
+      return `${yyyy}-${mm}-${dd}`;
+    }
+
     function initDates() {
       const invoiceDateInput = document.getElementById('invoice-date');
       const weekEndingInput = document.getElementById('week-ending-date');
       
-      const todayStr = new Date().toISOString().split('T')[0];
+      const todayStr = getLocalDateString();
       
       if (invoiceDateInput && !invoiceDateInput.value) {
         invoiceDateInput.value = todayStr;
@@ -1593,7 +1600,7 @@
       }
       
       if (weekEndingInput && !weekEndingInput.value) {
-        const upcomingSundayStr = getUpcomingSunday().toISOString().split('T')[0];
+        const upcomingSundayStr = getLocalDateString(getUpcomingSunday());
         weekEndingInput.value = upcomingSundayStr;
         localStorage.setItem('sig_week-ending-date', upcomingSundayStr);
       }
@@ -1657,16 +1664,7 @@
     }
 
     function getSuggestedNextDate() {
-      const rows = shiftsTbody.querySelectorAll('.shift-row');
-      if (rows.length > 0) {
-        const lastRowDateVal = rows[rows.length - 1].querySelector('.shift-date').value;
-        if (lastRowDateVal) {
-          const date = new Date(lastRowDateVal);
-          date.setDate(date.getDate() + 1);
-          return date.toISOString().split('T')[0];
-        }
-      }
-      return new Date().toISOString().split('T')[0];
+      return getLocalDateString();
     }
 
     function recalculateRow(row) {
@@ -1809,7 +1807,7 @@
       days.forEach(day => {
         const shiftDate = new Date(weekEnd);
         shiftDate.setDate(weekEnd.getDate() + day.offset);
-        const dateStr = shiftDate.toISOString().split('T')[0];
+        const dateStr = getLocalDateString(shiftDate);
 
         createShiftRow({
           date: dateStr,
@@ -2043,37 +2041,54 @@
         let grandTotalPay = 0;
         
         const shiftDataRows = [];
-        
-        shiftRows.forEach((row, index) => {
+        const shifts = [];
+
+        shiftRows.forEach(row => {
           const rawDate = row.querySelector('.shift-date').value;
-          const formattedDate = formatDate(rawDate);
           const desc = row.querySelector('.shift-desc').value.trim() || defaultJob;
           const start = row.querySelector('.shift-start').value;
           const end = row.querySelector('.shift-end').value;
           const rate = parseFloat(row.querySelector('.shift-rate').value) || 0;
           const hours = parseFloat(row.querySelector('.shift-hours').textContent) || 0;
           const total = parseFloat(row.querySelector('.shift-total').textContent.replace('£', '')) || 0;
+          shifts.push({ rawDate, desc, start, end, rate, hours, total });
+        });
 
-          grandTotalHours += hours;
-          grandTotalPay += total;
+        // Sort shifts chronologically by date, then by start time
+        shifts.sort((a, b) => {
+          const dateA = a.rawDate || '';
+          const dateB = b.rawDate || '';
+          if (dateA < dateB) return -1;
+          if (dateA > dateB) return 1;
+          const startA = a.start || '';
+          const startB = b.start || '';
+          if (startA < startB) return -1;
+          if (startA > startB) return 1;
+          return 0;
+        });
 
-          const timeText = (start && end) ? `${start} - ${end}` : "N/A";
+        shifts.forEach((shift) => {
+          const formattedDate = formatDate(shift.rawDate);
+          grandTotalHours += shift.hours;
+          grandTotalPay += shift.total;
+
+          const timeText = (shift.start && shift.end) ? `${shift.start} - ${shift.end}` : "N/A";
 
           if (hasWages) {
             shiftDataRows.push([
               { text: formattedDate, style: 'tableCell' },
-              { text: desc, style: 'tableCell' },
+              { text: shift.desc, style: 'tableCell' },
               { text: timeText, style: 'tableCell' },
-              { text: `£${rate.toFixed(2)}`, style: 'tableCell' },
-              { text: hours.toFixed(2), style: 'tableCell' },
-              { text: `£${total.toFixed(2)}`, style: 'tableCell' }
+              { text: `£${shift.rate.toFixed(2)}`, style: 'tableCell' },
+              { text: shift.hours.toFixed(2), style: 'tableCell' },
+              { text: `£${shift.total.toFixed(2)}`, style: 'tableCell' }
             ]);
           } else {
             shiftDataRows.push([
               { text: formattedDate, style: 'tableCell' },
-              { text: desc, style: 'tableCell' },
+              { text: shift.desc, style: 'tableCell' },
               { text: timeText, style: 'tableCell' },
-              { text: hours.toFixed(2), style: 'tableCell' }
+              { text: shift.hours.toFixed(2), style: 'tableCell' }
             ]);
           }
         });

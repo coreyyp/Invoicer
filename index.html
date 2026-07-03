@@ -1664,6 +1664,16 @@
     }
 
     function getSuggestedNextDate() {
+      const rows = shiftsTbody.querySelectorAll('.shift-row');
+      if (rows.length > 0) {
+        const lastRowDateVal = rows[rows.length - 1].querySelector('.shift-date').value;
+        if (lastRowDateVal && lastRowDateVal.includes('-')) {
+          const parts = lastRowDateVal.split('-').map(Number);
+          const date = new Date(parts[0], parts[1] - 1, parts[2]);
+          date.setDate(date.getDate() + 1);
+          return getLocalDateString(date);
+        }
+      }
       return getLocalDateString();
     }
 
